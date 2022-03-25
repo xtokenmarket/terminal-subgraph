@@ -1,0 +1,29 @@
+specVersion: 0.0.1
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: CLRDeployer
+    network: kovan
+    source:
+      address: "0x84046E058767673988914aE6089EAe8f1f682f37"
+      abi: CLRDeployer
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - CLRImplementationSet
+        - CLRTokenImplementationSet
+        - OwnershipTransferred
+      abis:
+        - name: CLRDeployer
+          file: ./abis/CLRDeployer.json
+      eventHandlers:
+        - event: CLRImplementationSet(indexed address)
+          handler: handleCLRImplementationSet
+        - event: CLRTokenImplementationSet(indexed address)
+          handler: handleCLRTokenImplementationSet
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+      file: ./src/mapping.ts
