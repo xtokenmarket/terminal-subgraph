@@ -2,15 +2,19 @@
   "name": "terminal-subgraph",
   "license": "UNLICENSED",
   "scripts": {
-    "codegen": "graph codegen",
+    "codegen": "graph codegen --output-dir src/types/",
     "build": "graph build",
-    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ xtokenmarket/terminal-subgraph",
-    "create-local": "graph create --node http://localhost:8020/ xtokenmarket/terminal-subgraph",
-    "remove-local": "graph remove --node http://localhost:8020/ xtokenmarket/terminal-subgraph",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 xtokenmarket/terminal-subgraph"
+    "prepare:mainnet": "mustache config/mainnet.json subgraph.template.yaml > subgraph.mainnet.yaml",
+    "prepare:kovan": "mustache config/kovan.json subgraph.template.yaml > subgraph.kovan.yaml",
+    "deploy:mainnet": "yarn prepare:mainnet && graph deploy --node https://api.thegraph.com/deploy/ miracle-arrow/terminal-mainnet subgraph.mainnet.yaml",
+    "deploy:kovan": "yarn prepare:kovan && graph deploy --node https://api.thegraph.com/deploy/ miracle-arrow/terminal subgraph.kovan.yaml",
+    "create-local": "graph create --node http://localhost:8020/ miracle-arrow/terminal",
+    "remove-local": "graph remove --node http://localhost:8020/ miracle-arrow/terminal",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 miracle-arrow/terminal"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "0.29.0",
-    "@graphprotocol/graph-ts": "0.26.0"
+    "@graphprotocol/graph-cli": "0.21.0",
+    "@graphprotocol/graph-ts": "0.20.0",
+    "mustache": "^4.2.0"
   }
 }

@@ -1,0 +1,6 @@
+node_modules/
+build/
+
+# network specific yaml files
+subgraph.mainnet.yaml
+subgraph.kovan.yaml

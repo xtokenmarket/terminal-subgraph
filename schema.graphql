@@ -1,5 +1,28 @@
-type ExampleEntity @entity {
+type Terminal @entity {
+  # Terminal address
   id: ID!
-  count: BigInt!
-  clrImplementation: Bytes! # address
+
+  poolCount: Int!
+}
+
+type Token @entity {
+  # token address
+  id: ID!
+
+  symbol: String!
+  name: String!
+  decimals: BigInt!
+}
+
+type Pool @entity {
+  # CLR Pool address
+  id: ID!
+
+  token0: Token!  # address
+  token1: Token!  # address
+  fee: Int!
+  lowerTick: Int!
+  upperTick: Int!
+
+  manager: Bytes! # address
 }

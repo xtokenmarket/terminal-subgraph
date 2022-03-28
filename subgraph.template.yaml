@@ -1,0 +1,71 @@
+specVersion: 0.0.2
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: Terminal
+    network: {{network}}
+    source:
+      address: '{{address}}'
+      abi: Terminal
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Terminal
+        - Pool
+        - Token
+      abis:
+        - name: Terminal
+          file: ./abis/Terminal.json
+        - name: Pool
+          file: ./abis/CLR.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: ERC20NameBytes
+          file: ./abis/ERC20NameBytes.json
+        - name: ERC20SymbolBytes
+          file: ./abis/ERC20SymbolBytes.json
+      eventHandlers:
+        # - event: DeployedUniV3Pool(indexed address,indexed address,indexed address,uint24)
+        #   handler: handleDeployedUniV3Pool
+        - event: DeployedIncentivizedPool(indexed address,indexed address,indexed address,uint24,int24,int24)
+          handler: handleDeployedIncentivizedPool
+        # - event: InitiatedRewardsProgram(indexed address,address[],uint256[],uint256)
+        #   handler: handleInitiatedRewardsProgram
+        # - event: TokenFeeWithdraw(indexed address,uint256)
+        #   handler: handleTokenFeeWithdraw
+        # - event: EthFeeWithdraw(uint256)
+        #   handler: handleEthFeeWithdraw
+      file: ./src/terminal.ts
+templates:
+  - kind: ethereum/contract
+    name: Pool
+    network: {{network}}
+    source:
+      abi: Pool
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/pool.ts
+      entities:
+        - Terminal
+        - Pool
+        - Token
+      abis:
+        - name: Terminal
+          file: ./abis/Terminal.json
+        - name: Pool
+          file: ./abis/CLR.json
+      eventHandlers:
+        - event: FeeCollected(uint256,uint256)
+          handler: handleFeeCollected
+        - event: ManagerSet(indexed address)
+          handler: handleManagerSet
+        - event: Deposit(indexed address,uint256,uint256)
+          handler: handleDeposit
+        - event: Withdraw(indexed address,uint256,uint256)
+          handler: handleWithdraw
