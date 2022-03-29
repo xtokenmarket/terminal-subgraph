@@ -193,4 +193,47 @@ export class Pool extends Entity {
   set manager(value: Bytes) {
     this.set("manager", Value.fromBytes(value));
   }
+
+  get rewardTokens(): Array<string> | null {
+    let value = this.get("rewardTokens");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set rewardTokens(value: Array<string> | null) {
+    if (value === null) {
+      this.unset("rewardTokens");
+    } else {
+      this.set("rewardTokens", Value.fromStringArray(value as Array<string>));
+    }
+  }
+
+  get rewardAmounts(): Array<BigInt> | null {
+    let value = this.get("rewardAmounts");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigIntArray();
+    }
+  }
+
+  set rewardAmounts(value: Array<BigInt> | null) {
+    if (value === null) {
+      this.unset("rewardAmounts");
+    } else {
+      this.set("rewardAmounts", Value.fromBigIntArray(value as Array<BigInt>));
+    }
+  }
+
+  get rewardDuration(): BigInt {
+    let value = this.get("rewardDuration");
+    return value.toBigInt();
+  }
+
+  set rewardDuration(value: BigInt) {
+    this.set("rewardDuration", Value.fromBigInt(value));
+  }
 }

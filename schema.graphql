@@ -18,11 +18,14 @@ type Pool @entity {
   # CLR Pool address
   id: ID!
 
-  token0: Token!  # address
-  token1: Token!  # address
+  token0: Token!      # address
+  token1: Token!      # address
   fee: Int!
   lowerTick: Int!
   upperTick: Int!
 
-  manager: Bytes! # address
+  manager: Bytes!     # address
+  rewardTokens: [Token!]  # address array
+  rewardAmounts: [BigInt!]  # amount array
+  rewardDuration: BigInt!
 }

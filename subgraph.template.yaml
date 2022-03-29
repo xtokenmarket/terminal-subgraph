@@ -33,8 +33,8 @@ dataSources:
         #   handler: handleDeployedUniV3Pool
         - event: DeployedIncentivizedPool(indexed address,indexed address,indexed address,uint24,int24,int24)
           handler: handleDeployedIncentivizedPool
-        # - event: InitiatedRewardsProgram(indexed address,address[],uint256[],uint256)
-        #   handler: handleInitiatedRewardsProgram
+        - event: InitiatedRewardsProgram(indexed address,address[],uint256[],uint256)
+          handler: handleInitiatedRewardsProgram
         # - event: TokenFeeWithdraw(indexed address,uint256)
         #   handler: handleTokenFeeWithdraw
         # - event: EthFeeWithdraw(uint256)
@@ -69,3 +69,5 @@ templates:
           handler: handleDeposit
         - event: Withdraw(indexed address,uint256,uint256)
           handler: handleWithdraw
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer

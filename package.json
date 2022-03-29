@@ -2,8 +2,8 @@
   "name": "terminal-subgraph",
   "license": "UNLICENSED",
   "scripts": {
-    "codegen": "graph codegen --output-dir src/types/",
-    "build": "graph build",
+    "codegen": "yarn prepare:mainnet && graph codegen --output-dir src/types/ subgraph.mainnet.yaml",
+    "build": "yarn prepare:mainnet && graph build subgraph.mainnet.yaml",
     "prepare:mainnet": "mustache config/mainnet.json subgraph.template.yaml > subgraph.mainnet.yaml",
     "prepare:kovan": "mustache config/kovan.json subgraph.template.yaml > subgraph.kovan.yaml",
     "deploy:mainnet": "yarn prepare:mainnet && graph deploy --node https://api.thegraph.com/deploy/ miracle-arrow/terminal-mainnet subgraph.mainnet.yaml",
