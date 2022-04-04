@@ -18,14 +18,36 @@ type Pool @entity {
   # CLR Pool address
   id: ID!
 
-  token0: Token!      # address
-  token1: Token!      # address
+  token0: Token!
+  token1: Token!
   fee: Int!
   lowerTick: Int!
   upperTick: Int!
+  ticks: [BigInt!]
 
-  manager: Bytes!     # address
-  rewardTokens: [Token!]  # address array
-  rewardAmounts: [BigInt!]  # amount array
+  owner: User!
+  manager: User
+  rewardTokens: [Token!]
+  rewardAmounts: [BigInt!]
+  rewardAmountsPerWeek: [BigInt!]
+  rewardsAreEscrowed: Boolean
   rewardDuration: BigInt!
+
+  tokenId: BigInt!    # Uniswap LP Position
+  poolFee: Int!
+  tradeFee: BigInt!
+  uniswapPool: String! # Uniswap pool address
+  periodFinish: BigInt!
+
+  stakedToken: Token!
+
+  vestingPeriod: BigInt!
+}
+
+type User @entity {
+  # User address
+  id: ID!
+
+  managingPools: [Pool!] @derivedFrom(field: "manager")
+  ownedPools: [Pool!] @derivedFrom(field: "owner")
 }

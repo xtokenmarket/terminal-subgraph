@@ -1,8 +1,8 @@
-import { Address, BigInt, log } from "@graphprotocol/graph-ts";
+import { Address, BigInt } from "@graphprotocol/graph-ts";
 import { TokenDefinition } from "./tokenDefinition";
-import { ERC20 } from "./types/Terminal/ERC20";
-import { ERC20NameBytes } from "./types/Terminal/ERC20NameBytes";
-import { ERC20SymbolBytes } from "./types/Terminal/ERC20SymbolBytes";
+import { ERC20 } from "../types/Terminal/ERC20";
+import { ERC20NameBytes } from "../types/Terminal/ERC20NameBytes";
+import { ERC20SymbolBytes } from "../types/Terminal/ERC20SymbolBytes";
 
 export const TERMINAL_ADDRESS = "0x2F6Cd810537f81423a5dfEc957DC7B98AB420BD7";
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
@@ -85,3 +85,4 @@ export function fetchTokenDecimals(tokenAddress: Address): BigInt {
   }
   return BigInt.fromI32(decimalValue as i32)
 }
+

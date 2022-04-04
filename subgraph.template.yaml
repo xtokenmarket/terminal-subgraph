@@ -28,6 +28,8 @@ dataSources:
           file: ./abis/ERC20NameBytes.json
         - name: ERC20SymbolBytes
           file: ./abis/ERC20SymbolBytes.json
+        - name: RewardEscrow
+          file: ./abis/RewardEscrow.json
       eventHandlers:
         # - event: DeployedUniV3Pool(indexed address,indexed address,indexed address,uint24)
         #   handler: handleDeployedUniV3Pool
@@ -39,7 +41,7 @@ dataSources:
         #   handler: handleTokenFeeWithdraw
         # - event: EthFeeWithdraw(uint256)
         #   handler: handleEthFeeWithdraw
-      file: ./src/terminal.ts
+      file: ./src/mappings/terminal.ts
 templates:
   - kind: ethereum/contract
     name: Pool
@@ -50,7 +52,7 @@ templates:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/pool.ts
+      file: ./src/mappings/pool.ts
       entities:
         - Terminal
         - Pool
@@ -69,5 +71,5 @@ templates:
           handler: handleDeposit
         - event: Withdraw(indexed address,uint256,uint256)
           handler: handleWithdraw
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransfer
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
