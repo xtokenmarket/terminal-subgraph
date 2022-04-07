@@ -3,4 +3,7 @@ build/
 
 # network specific yaml files
 subgraph.mainnet.yaml
+subgraph.arbitrum.yaml
+subgraph.optimism.yaml
+subgraph.polygon.yaml
 subgraph.kovan.yaml
