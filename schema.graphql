@@ -18,30 +18,106 @@ type Pool @entity {
   # CLR Pool address
   id: ID!
 
-  token0: Token!
-  token1: Token!
-  fee: Int!
-  lowerTick: Int!
-  upperTick: Int!
+  token0: Token
+  token1: Token
+  lowerTick: Int
+  upperTick: Int
   ticks: [BigInt!]
 
-  owner: User!
+  owner: User
   manager: User
   rewardTokens: [Token!]
   rewardAmounts: [BigInt!]
   rewardAmountsPerWeek: [BigInt!]
   rewardsAreEscrowed: Boolean
-  rewardDuration: BigInt!
+  rewardDuration: BigInt
 
-  tokenId: BigInt!    # Uniswap LP Position
-  poolFee: Int!
-  tradeFee: BigInt!
-  uniswapPool: String! # Uniswap pool address
-  periodFinish: BigInt!
+  tokenId: BigInt    # Uniswap LP Position
+  poolFee: Int
+  tradeFee: BigInt
+  uniswapPool: Uniswap
+  periodFinish: BigInt
 
-  stakedToken: Token!
+  stakedToken: Token
+  stakedTokenBalance: [BigInt!]
+  bufferTokenBalance: [BigInt!]
 
-  vestingPeriod: BigInt!
+  vestingPeriod: BigInt
+
+  deposits: [Deposit!] @derivedFrom(field: "pool")
+  withdrawals: [Withdrawal!] @derivedFrom(field: "pool")
+  claimedRewards: [RewardClaim!] @derivedFrom(field: "pool")
+  rewardInitiations: [RewardInitiation!] @derivedFrom(field: "pool")
+  vests: [Vest!] @derivedFrom(field: "pool")
+}
+
+type Deposit @entity {
+  # Deposit tx hash
+  id: ID!
+
+  user: User!
+  pool: Pool!
+  amount0: BigInt!
+  amount1: BigInt!
+
+  timestamp: BigInt!
+}
+
+type Withdrawal @entity {
+  # Withdraw tx hash
+  id: ID!
+
+  user: User!
+  pool: Pool!
+  amount0: BigInt!
+  amount1: BigInt!
+
+  timestamp: BigInt!
+}
+
+type RewardClaim @entity {
+  # Reward claim tx hash
+  id: ID!
+
+  user: User!
+  pool: Pool!
+  token: Token!
+  amount: BigInt!
+
+  timestamp: BigInt!
+}
+
+type RewardInitiation @entity {
+  # Reward initiation tx hash
+  id: ID!
+
+  user: User!
+  pool: Pool!
+  tokens: [Token!]
+  amounts: [BigInt!]
+  duration: BigInt!
+
+  timestamp: BigInt!
+}
+
+type Vest @entity {
+  # Vest tx hash
+  id: ID!
+
+  beneficiary: User!
+  pool: Pool!
+  token: Token!
+  time: BigInt!
+  value: BigInt!
+
+  period: BigInt!
+}
+
+type Uniswap @entity {
+  # Pool address
+  id: ID!
+
+  pool: Pool
 }
 
 type User @entity {
@@ -50,4 +126,9 @@ type User @entity {
 
   managingPools: [Pool!] @derivedFrom(field: "manager")
   ownedPools: [Pool!] @derivedFrom(field: "owner")
+  deposits: [Deposit!] @derivedFrom(field: "user")
+  withdrawals: [Withdrawal!] @derivedFrom(field: "user")
+  claimedRewards: [RewardClaim!] @derivedFrom(field: "user")
+  rewardInitiations: [RewardInitiation!] @derivedFrom(field: "user")
+  vests: [Vest!] @derivedFrom(field: "beneficiary")
 }

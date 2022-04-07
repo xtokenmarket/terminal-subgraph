@@ -15,3 +15,17 @@ export class Pool extends DataSourceTemplate {
     DataSourceTemplate.createWithContext("Pool", [address.toHex()], context);
   }
 }
+
+export class UniswapV3Pool extends DataSourceTemplate {
+  static create(address: Address): void {
+    DataSourceTemplate.create("UniswapV3Pool", [address.toHex()]);
+  }
+
+  static createWithContext(address: Address, context: DataSourceContext): void {
+    DataSourceTemplate.createWithContext(
+      "UniswapV3Pool",
+      [address.toHex()],
+      context
+    );
+  }
+}

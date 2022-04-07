@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: Terminal
-    network: {{network}}
+    network: arbitrum-one
     source:
-      address: '{{address}}'
+      address: '0x090559D58aAB8828C27eE7a7EAb18efD5bB90374'
       abi: Terminal
-      startBlock: {{startBlock}}
+      startBlock: 7804499
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -44,11 +44,11 @@ dataSources:
       file: ./src/mappings/terminal.ts
   - kind: ethereum
     name: RewardEscrow
-    network: {{network}}
+    network: arbitrum-one
     source:
-      address: '{{rewardEscrowAddress}}'
+      address: '0x40E8cb3440C0B05EB20522D1F63397e5B36efcf2'
       abi: RewardEscrow
-      startBlock: {{rewardEscrowStartBlock}}
+      startBlock: 7745966
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -69,7 +69,7 @@ dataSources:
 templates:
   - kind: ethereum/contract
     name: Pool
-    network: {{network}}
+    network: arbitrum-one
     source:
       abi: Pool
     mapping:
@@ -101,33 +101,3 @@ templates:
           handler: handleRewardClaimed
         - event: RewardAdded(uint256)
           handler: handleRewardAdded
-        - event: Staked(indexed address,uint256)
-          handler: handleStaked
-        - event: Withdrawn(indexed address,uint256)
-          handler: handleWithdrawn
-        - event: Reinvest()
-          handler: handleReinvest
-        - event: RewardsDurationUpdated(uint256)
-          handler: handleRewardsDurationUpdated
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransfer
-  - kind: ethereum/contract
-    name: UniswapV3Pool
-    network: {{network}}
-    source:
-      abi: UniswapV3Pool
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ./src/mappings/uniswap.ts
-      entities:
-        - Pool
-      abis:
-        - name: UniswapV3Pool
-          file: ./abis/UniswapV3Pool.json
-        - name: Pool
-          file: ./abis/CLR.json
-      eventHandlers:
-        - event: Swap(indexed address,indexed address,int256,int256,uint160,uint128,int24)
-          handler: handleSwap

@@ -1,18 +1,22 @@
-import { Address, BigInt, log, crypto, ByteArray } from "@graphprotocol/graph-ts"
+import { BigInt, log } from "@graphprotocol/graph-ts"
 import { 
   ADDRESS_ZERO,
   fetchTokenDecimals,
   fetchTokenName,
   fetchTokenSymbol,
   TERMINAL_ADDRESS,
-  ZERO_BI
+  ZERO_BI,
+  MINUS_ONE_BI
 } from "../helpers/general"
 import {
+  fetchBufferTokenBalance,
   fetchOwner,
   fetchPeriodFinish,
   fetchPoolFee,
   fetchRewardsAreEscrowed,
+  fetchRewardTokens,
   fetchStakedToken,
+  fetchStakedTokenBalance,
   fetchTicks,
   fetchTokenId,
   fetchTradeFee,
@@ -20,8 +24,8 @@ import {
 } from "../helpers/pool"
 import { fetchVestingPeriod } from "../helpers/rewardEscrow"
 import { fetchRewardEscrow } from "../helpers/terminal"
-import { Pool, Terminal, Token, User } from "../types/schema"
-import { Pool as PoolTemplate } from "../types/templates"
+import { Pool, RewardInitiation, Terminal, Token, Uniswap, User } from "../types/schema"
+import { Pool as PoolTemplate, UniswapV3Pool } from "../types/templates"
 import { 
   DeployedIncentivizedPool,
   DeployedUniV3Pool,
@@ -49,7 +53,7 @@ export function handleDeployedIncentivizedPool(event: DeployedIncentivizedPool):
     token0.name = fetchTokenName(params.token0)
     let decimals = fetchTokenDecimals(params.token0)
 
-    if (decimals === BigInt.fromI32(-1)) {
+    if (decimals === MINUS_ONE_BI) {
       log.debug("Terminal: decimals on token 0 was null", [])
       return
     }
@@ -65,7 +69,7 @@ export function handleDeployedIncentivizedPool(event: DeployedIncentivizedPool):
     token1.name = fetchTokenName(params.token1)
     let decimals = fetchTokenDecimals(params.token1)
 
-    if (decimals === BigInt.fromI32(-1)) {
+    if (decimals === MINUS_ONE_BI) {
       log.debug("Terminal: decimals on token 1 was null", [])
       return
     }
@@ -79,7 +83,6 @@ export function handleDeployedIncentivizedPool(event: DeployedIncentivizedPool):
   pool.token1 = token1.id
   pool.lowerTick = params.lowerTick
   pool.upperTick = params.upperTick
-  pool.fee = params.fee
   pool.manager = ADDRESS_ZERO
 
   let ownerAddress = fetchOwner(poolAddress)
@@ -98,7 +101,7 @@ export function handleDeployedIncentivizedPool(event: DeployedIncentivizedPool):
     stakedToken.name = fetchTokenName(stakedTokenAddress)
     let decimals = fetchTokenDecimals(stakedTokenAddress)
 
-    if (decimals === BigInt.fromI32(-1)) {
+    if (decimals === MINUS_ONE_BI) {
       log.debug("Terminal: decimals on staked tone was null", [])
       return
     }
@@ -116,13 +119,19 @@ export function handleDeployedIncentivizedPool(event: DeployedIncentivizedPool):
   pool.tokenId = fetchTokenId(poolAddress)
   pool.tradeFee = fetchTradeFee(poolAddress)
   pool.poolFee = fetchPoolFee(poolAddress)
-  pool.uniswapPool = fetchUniswapPool(poolAddress).toHexString()
+
+  let uniswapPoolAddress = fetchUniswapPool(poolAddress)
+  let uniswapPool = Uniswap.load(uniswapPoolAddress.toHexString())
+  if (!uniswapPool) {
+    uniswapPool = new Uniswap(uniswapPoolAddress.toHexString())
+  }
+  uniswapPool.pool = pool.id
+  uniswapPool.save()
+  
+  pool.uniswapPool = uniswapPool.id
   pool.periodFinish = fetchPeriodFinish(poolAddress)
 
-  let rewardEscrowAddress = fetchRewardEscrow()
-  let vestingPeriod = fetchVestingPeriod(rewardEscrowAddress, poolAddress)
-  pool.vestingPeriod = vestingPeriod
-
+  UniswapV3Pool.create(uniswapPoolAddress)
   PoolTemplate.create(poolAddress)
 
   owner.save()
@@ -146,7 +155,9 @@ export function handleInitiatedRewardsProgram(event: InitiatedRewardsProgram): v
     pool = new Pool(params.clrInstance.toHexString())
   }
 
-  params.rewardTokens.forEach(id => {
+  let rewardTokens = fetchRewardTokens(params.clrInstance)
+
+  rewardTokens.forEach(id => {
     let token = Token.load(id.toHexString())
     if (!token) {
       token = new Token(id.toHexString())
@@ -154,7 +165,7 @@ export function handleInitiatedRewardsProgram(event: InitiatedRewardsProgram): v
       token.name = fetchTokenName(id)
       let decimals = fetchTokenDecimals(id)
 
-      if (decimals === BigInt.fromI32(-1)) {
+      if (decimals === MINUS_ONE_BI) {
         log.debug("Terminal: decimals on token {} was null", [id.toHexString()])
         return
       }
@@ -164,9 +175,11 @@ export function handleInitiatedRewardsProgram(event: InitiatedRewardsProgram): v
     token.save()
   })
 
-  pool.rewardTokens = params.rewardTokens.map<string>(token => token.toHexString())
+  pool.rewardTokens = rewardTokens.map<string>(token => token.toHexString())
   pool.rewardAmounts = params.totalRewardAmounts
   pool.rewardDuration = params.rewardsDuration
+  pool.bufferTokenBalance = fetchBufferTokenBalance(params.clrInstance)
+  pool.stakedTokenBalance = fetchStakedTokenBalance(params.clrInstance)
   rewardsDuration = params.rewardsDuration
   
   pool.rewardAmountsPerWeek = params.totalRewardAmounts.map<BigInt>((amount) => {
@@ -178,6 +191,26 @@ export function handleInitiatedRewardsProgram(event: InitiatedRewardsProgram): v
   })
 
   pool.save()
+
+  let rewardInitiation = RewardInitiation.load(event.transaction.hash.toHexString())
+  if (!rewardInitiation) {
+    rewardInitiation = new RewardInitiation(event.transaction.hash.toHexString())
+  }
+
+  let user = User.load(event.transaction.from.toHexString())
+  if (!user) {
+    user = new User(event.transaction.from.toHexString())
+    user.save()
+  }
+
+  rewardInitiation.user = user.id
+  rewardInitiation.pool = pool.id
+  rewardInitiation.tokens = params.rewardTokens.map<string>(token => token.toHexString())
+  rewardInitiation.amounts = params.totalRewardAmounts
+  rewardInitiation.duration = params.rewardsDuration
+  rewardInitiation.timestamp = event.block.timestamp
+
+  rewardInitiation.save()
 }
 
 // export function handleTokenFeeWithdraw(event: TokenFeeWithdraw): void {

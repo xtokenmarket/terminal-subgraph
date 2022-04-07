@@ -1,7 +1,7 @@
 {
-  "network": "mainnet",
+  "network": "optimism",
   "address": "0x090559D58aAB8828C27eE7a7EAb18efD5bB90374",
-  "startBlock": 14373341,
+  "startBlock": 4396676,
   "rewardEscrowAddress": "0x40E8cb3440C0B05EB20522D1F63397e5B36efcf2",
-  "rewardEscrowStartBlock": 14373328
+  "rewardEscrowStartBlock": 4396632
 }

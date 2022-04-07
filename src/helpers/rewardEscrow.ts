@@ -1,5 +1,5 @@
 import { Address, BigInt } from "@graphprotocol/graph-ts";
-import { RewardEscrow } from "../types/Terminal/RewardEscrow";
+import { RewardEscrow } from "../types/RewardEscrow/RewardEscrow";
 import { ZERO_BI } from "./general";
 
 export function fetchVestingPeriod(rewardEscrowAddress: Address, poolAddress: Address): BigInt {

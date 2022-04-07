@@ -34,6 +34,16 @@ export function fetchOwner(poolAddress: Address): Address {
   return owner
 }
 
+export function fetchRewardTokens(poolAddress: Address): Array<Address> {
+  let contract = Pool.bind(poolAddress)
+  let rewardTokens: Array<Address> = new Array()
+  let rewardTokensResult = contract.try_getRewardTokens()
+  if (!rewardTokensResult.reverted) {
+    rewardTokens = rewardTokensResult.value
+  }
+  return rewardTokens
+}
+
 export function fetchRewardsAreEscrowed(poolAddress: Address): boolean {
   let contract = Pool.bind(poolAddress)
   let rewardsAreEscrowed = false
@@ -92,4 +102,33 @@ export function fetchPeriodFinish(poolAddress: Address): BigInt {
     periodFinish = periodFinishResult.value
   }
   return periodFinish
+}
+
+export function fetchBufferTokenBalance(poolAddress: Address): Array<BigInt> {
+  let contract = Pool.bind(poolAddress)
+  let bufferTokenBalance: Array<BigInt> = new Array()
+  let bufferTokenBalanceResult = contract.try_getBufferTokenBalance()
+  if (!bufferTokenBalanceResult.reverted) {
+    bufferTokenBalance.push(bufferTokenBalanceResult.value.value0)
+    bufferTokenBalance.push(bufferTokenBalanceResult.value.value1)
+  } else {
+    bufferTokenBalance.push(ZERO_BI)
+    bufferTokenBalance.push(ZERO_BI)
+  }
+
+  return bufferTokenBalance
+}
+
+export function fetchStakedTokenBalance(poolAddress: Address): Array<BigInt> {
+  let contract = Pool.bind(poolAddress)
+  let stakedTokenBalance: Array<BigInt> = new Array()
+  let stakedTokenBalanceResult = contract.try_getStakedTokenBalance()
+  if (!stakedTokenBalanceResult.reverted) {
+    stakedTokenBalance.push(stakedTokenBalanceResult.value.value0)
+    stakedTokenBalance.push(stakedTokenBalanceResult.value.value1)
+  } else {
+    stakedTokenBalance.push(ZERO_BI)
+    stakedTokenBalance.push(ZERO_BI)
+  }
+  return stakedTokenBalance
 }

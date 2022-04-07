@@ -8,6 +8,7 @@ export const TERMINAL_ADDRESS = "0x2F6Cd810537f81423a5dfEc957DC7B98AB420BD7";
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
 export let ZERO_BI = BigInt.fromI32(0)
 export let ONE_BI = BigInt.fromI32(1)
+export let MINUS_ONE_BI = BigInt.fromI32(-1)
 
 export function isNullEthValue(value: string): boolean {
   return value == '0x0000000000000000000000000000000000000000000000000000000000000001'
