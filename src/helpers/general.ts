@@ -4,7 +4,7 @@ import { ERC20 } from "../types/Terminal/ERC20";
 import { ERC20NameBytes } from "../types/Terminal/ERC20NameBytes";
 import { ERC20SymbolBytes } from "../types/Terminal/ERC20SymbolBytes";
 
-export const TERMINAL_ADDRESS = "0x2F6Cd810537f81423a5dfEc957DC7B98AB420BD7";
+export const UNISWAP_LIBRARY_ADDRESS = "0x0f58DbEAe68161450587b6E2b521B545B695F3Ab";
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
 export let ZERO_BI = BigInt.fromI32(0)
 export let ONE_BI = BigInt.fromI32(1)

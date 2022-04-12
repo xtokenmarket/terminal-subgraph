@@ -58,7 +58,6 @@ export function handleVested(event: Vested): void {
 export function handleVestingPeriodSet(event: VestingPeriodSet): void {
   let params = event.params
   let pool = Pool.load(params.pool.toHexString())
-  log.warning("{} {}", [params.pool.toHexString(), params.vestingPeriod.toString()])
   if (!pool) {
     pool = new Pool(params.pool.toHexString())
   }

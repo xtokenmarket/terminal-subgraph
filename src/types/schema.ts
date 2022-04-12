@@ -400,6 +400,23 @@ export class Pool extends Entity {
     }
   }
 
+  get price(): BigInt | null {
+    let value = this.get("price");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set price(value: BigInt | null) {
+    if (value === null) {
+      this.unset("price");
+    } else {
+      this.set("price", Value.fromBigInt(value as BigInt));
+    }
+  }
+
   get stakedToken(): string | null {
     let value = this.get("stakedToken");
     if (value === null || value.kind == ValueKind.NULL) {

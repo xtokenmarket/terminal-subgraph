@@ -30,6 +30,8 @@ dataSources:
           file: ./abis/ERC20SymbolBytes.json
         - name: RewardEscrow
           file: ./abis/RewardEscrow.json
+        - name: UniswapLibrary
+          file: ./abis/UniswapLibrary.json
       eventHandlers:
         # - event: DeployedUniV3Pool(indexed address,indexed address,indexed address,uint24)
         #   handler: handleDeployedUniV3Pool
@@ -86,6 +88,8 @@ templates:
           file: ./abis/Terminal.json
         - name: Pool
           file: ./abis/CLR.json
+        - name: UniswapLibrary
+          file: ./abis/UniswapLibrary.json
       eventHandlers:
         - event: FeeCollected(uint256,uint256)
           handler: handleFeeCollected
@@ -128,6 +132,12 @@ templates:
           file: ./abis/UniswapV3Pool.json
         - name: Pool
           file: ./abis/CLR.json
+        - name: UniswapLibrary
+          file: ./abis/UniswapLibrary.json
       eventHandlers:
         - event: Swap(indexed address,indexed address,int256,int256,uint160,uint128,int24)
           handler: handleSwap
+        - event: Burn(indexed address,indexed int24,indexed int24,uint128,uint256,uint256)
+          handler: handleBurn
+        - event: Collect(indexed address,address,indexed int24,indexed int24,uint128,uint128)
+          handler: handleCollect

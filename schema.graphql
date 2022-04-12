@@ -37,6 +37,7 @@ type Pool @entity {
   tradeFee: BigInt
   uniswapPool: Uniswap
   periodFinish: BigInt
+  price: BigInt
 
   stakedToken: Token
   stakedTokenBalance: [BigInt!]

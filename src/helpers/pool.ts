@@ -1,6 +1,7 @@
 import { Address, BigInt } from "@graphprotocol/graph-ts";
+import { UniswapLibrary } from "../types/templates/Pool/UniswapLibrary";
 import { Pool } from "../types/Terminal/Pool";
-import { ADDRESS_ZERO, ZERO_BI } from "./general";
+import { ADDRESS_ZERO, UNISWAP_LIBRARY_ADDRESS, ZERO_BI } from "./general";
 
 export function fetchStakedToken(poolAddress: Address): Address {
   let contract = Pool.bind(poolAddress)
@@ -131,4 +132,14 @@ export function fetchStakedTokenBalance(poolAddress: Address): Array<BigInt> {
     stakedTokenBalance.push(ZERO_BI)
   }
   return stakedTokenBalance
+}
+
+export function fetchPoolPriceWithDecimals(poolAddress: Address): BigInt {
+  let contract = UniswapLibrary.bind(Address.fromString(UNISWAP_LIBRARY_ADDRESS))
+  let price = ZERO_BI
+  let priceResult = contract.try_getPoolPriceWithDecimals(poolAddress)
+  if (!priceResult.reverted) {
+    price = priceResult.value
+  }
+  return price
 }
