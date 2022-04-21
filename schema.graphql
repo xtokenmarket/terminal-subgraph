@@ -45,11 +45,15 @@ type Pool @entity {
 
   vestingPeriod: BigInt
 
+  createdAt: BigInt
+
   deposits: [Deposit!] @derivedFrom(field: "pool")
   withdrawals: [Withdrawal!] @derivedFrom(field: "pool")
   claimedRewards: [RewardClaim!] @derivedFrom(field: "pool")
   rewardInitiations: [RewardInitiation!] @derivedFrom(field: "pool")
   vests: [Vest!] @derivedFrom(field: "pool")
+  collects: [Collect!] @derivedFrom(field: "pool")
+  reinvests: [Reinvest!] @derivedFrom(field: "pool")
 }
 
 type Deposit @entity {
@@ -86,6 +90,8 @@ type RewardClaim @entity {
   amount: BigInt!
 
   timestamp: BigInt!
+
+  txHash: String!
 }
 
 type RewardInitiation @entity {
@@ -108,10 +114,12 @@ type Vest @entity {
   beneficiary: User!
   pool: Pool!
   token: Token!
-  time: BigInt!
+  timestamp: BigInt!
   value: BigInt!
 
   period: BigInt!
+
+  txHash: String!
 }
 
 type Uniswap @entity {
@@ -119,6 +127,27 @@ type Uniswap @entity {
   id: ID!
 
   pool: Pool
+}
+
+type Collect @entity {
+  # Collect tx hash
+  id: ID!
+
+  token0Fee: BigInt!
+  token1Fee: BigInt!
+
+  pool: Pool!
+
+  timestamp: BigInt!
+}
+
+type Reinvest @entity {
+  # Reinvest tx hash
+  id: ID!
+
+  pool: Pool!
+
+  timestamp: BigInt!
 }
 
 type User @entity {

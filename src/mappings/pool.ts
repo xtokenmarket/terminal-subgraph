@@ -1,4 +1,4 @@
-import { Pool, Token, User } from "../types/schema"
+import { Collect, Pool, Reinvest, Token, User } from "../types/schema"
 import { 
   Deposit as DepositEvent,
   FeeCollected,
@@ -9,7 +9,7 @@ import {
   RewardAdded,
   Staked,
   Withdrawn,
-  Reinvest,
+  Reinvest as ReinvestEvent,
   RewardsDurationUpdated,
   Transfer
 } from "../types/templates/Pool/Pool"
@@ -86,6 +86,16 @@ export function handleFeeCollected(event: FeeCollected): void {
     pool.save()
   }
 
+  let collect = Collect.load(event.transaction.hash.toHexString())
+  if (!collect) {
+    collect = new Collect(event.transaction.hash.toHexString())
+  }
+
+  collect.token0Fee = event.params.token0Fee
+  collect.token1Fee = event.params.token1Fee
+  collect.pool = pool.id
+  collect.timestamp = event.block.timestamp
+
   pool.bufferTokenBalance = fetchBufferTokenBalance(event.address)
   pool.stakedTokenBalance = fetchStakedTokenBalance(event.address)
   if (pool.uniswapPool) {
@@ -93,6 +103,7 @@ export function handleFeeCollected(event: FeeCollected): void {
   }
 
   pool.save()
+  collect.save()
 }
 
 export function handleWithdraw(event: WithdrawEvent): void {
@@ -152,9 +163,10 @@ export function handleOwnershipTransferred(event: OwnershipTransferred): void {
 }
 
 export function handleRewardClaimed(event: RewardClaimed): void {
-  let rewardClaim = RewardClaim.load(event.transaction.hash.toHexString())
+  let id = event.transaction.hash.toHexString() + event.params.token.toHexString()
+  let rewardClaim = RewardClaim.load(id)
   if (!rewardClaim) {
-    rewardClaim = new RewardClaim(event.transaction.hash.toHexString())
+    rewardClaim = new RewardClaim(id)
   }
 
   let params = event.params
@@ -174,6 +186,7 @@ export function handleRewardClaimed(event: RewardClaimed): void {
   }
   rewardClaim.pool = pool.id
   rewardClaim.amount = params.rewardAmount
+  rewardClaim.txHash = event.transaction.hash.toHexString()
   
   let token = Token.load(params.token.toHexString())
   if (!token) {
@@ -243,18 +256,28 @@ export function handleWithdrawn(event: Withdrawn): void {
   pool.save()
 }
 
-export function handleReinvest(event: Reinvest): void {
+export function handleReinvest(event: ReinvestEvent): void {
   let pool = Pool.load(event.address.toHexString())
   if (!pool) {
     pool = new Pool(event.address.toHexString())
   }
+
+  let reinvest = Reinvest.load(event.transaction.hash.toHexString())
+  if (!reinvest) {
+    reinvest = new Reinvest(event.transaction.hash.toHexString())
+  }
+
+  reinvest.pool = pool.id
+  reinvest.timestamp = event.block.timestamp
 
   pool.bufferTokenBalance = fetchBufferTokenBalance(event.address)
   pool.stakedTokenBalance = fetchStakedTokenBalance(event.address)
   if (pool.uniswapPool) {
     pool.price = fetchPoolPriceWithDecimals(Address.fromString(pool.uniswapPool))
   }
+
   pool.save()
+  reinvest.save()
 }
 
 export function handleRewardsDurationUpdated(event: RewardsDurationUpdated): void {

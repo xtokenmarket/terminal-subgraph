@@ -13,6 +13,7 @@ import {
   fetchPeriodFinish,
   fetchPoolFee,
   fetchPoolPriceWithDecimals,
+  fetchRewardInfo,
   fetchRewardsAreEscrowed,
   fetchRewardTokens,
   fetchStakedToken,
@@ -115,7 +116,29 @@ export function handleDeployedIncentivizedPool(event: DeployedIncentivizedPool):
 
   pool.ticks = fetchTicks(poolAddress)
   
-  pool.rewardTokens = []
+  let rewardTokens = fetchRewardTokens(params.clrInstance)
+
+  rewardTokens.forEach(id => {
+    let token = Token.load(id.toHexString())
+    if (!token) {
+      token = new Token(id.toHexString())
+      token.symbol = fetchTokenSymbol(id)
+      token.name = fetchTokenName(id)
+      let decimals = fetchTokenDecimals(id)
+
+      if (decimals === MINUS_ONE_BI) {
+        log.debug("Terminal: decimals on token {} was null", [id.toHexString()])
+        return
+      }
+      token.decimals = decimals
+    }
+
+    token.save()
+  })
+
+  pool.rewardTokens = rewardTokens.map<string>(token => {
+    return token.toHexString()
+  })
   pool.rewardAmounts = []
   pool.rewardDuration = BigInt.fromI32(0)
   pool.rewardsAreEscrowed = fetchRewardsAreEscrowed(poolAddress)
@@ -140,6 +163,7 @@ export function handleDeployedIncentivizedPool(event: DeployedIncentivizedPool):
   if (pool.vestingPeriod === null) {
     pool.vestingPeriod = ZERO_BI;
   }
+  pool.createdAt = event.block.timestamp
   
   UniswapV3Pool.create(uniswapPoolAddress)
   PoolTemplate.create(poolAddress)
@@ -158,6 +182,7 @@ export function handleDeployedIncentivizedPool(event: DeployedIncentivizedPool):
 
 let rewardsDuration: BigInt;
 let rewardFee: BigInt;
+let poolAddressGb: Address;
 export function handleInitiatedRewardsProgram(event: InitiatedRewardsProgram): void {
   let params = event.params
   let pool = Pool.load(params.clrInstance.toHexString())
@@ -166,7 +191,7 @@ export function handleInitiatedRewardsProgram(event: InitiatedRewardsProgram): v
     pool = new Pool(params.clrInstance.toHexString())
   }
 
-  let rewardTokens = fetchRewardTokens(params.clrInstance)
+  let rewardTokens = event.params.rewardTokens
 
   rewardTokens.forEach(id => {
     let token = Token.load(id.toHexString())
@@ -187,11 +212,13 @@ export function handleInitiatedRewardsProgram(event: InitiatedRewardsProgram): v
   })
 
   rewardFee = fetchRewardFee(event.address)
+  poolAddressGb = params.clrInstance
   pool.rewardTokens = rewardTokens.map<string>(token => {
-    log.warning("Reward Token: {}", [token.toHexString()])
+    log.warning("Reward Token: {} - {}", [poolAddressGb.toHexString(), token.toHexString()])
     return token.toHexString()
   })
-  pool.rewardAmounts = params.totalRewardAmounts.map<BigInt>((amount) => {
+  pool.rewardAmounts = rewardTokens.map<BigInt>((token) => {
+    let amount = fetchRewardInfo(poolAddressGb, token)
     return amount.times(BigInt.fromI32(10000).minus(rewardFee)).div(BigInt.fromI32(10000))
   })
   pool.rewardDuration = params.rewardsDuration
@@ -202,12 +229,10 @@ export function handleInitiatedRewardsProgram(event: InitiatedRewardsProgram): v
   }
   rewardsDuration = params.rewardsDuration
   
-  pool.rewardAmountsPerWeek = params.totalRewardAmounts.map<BigInt>((amount) => {
+  pool.rewardAmountsPerWeek = pool.rewardAmounts.map<BigInt>((amount) => {
     let rewardAmountForWeek: BigInt = ZERO_BI
     if (rewardsDuration !== ZERO_BI) {
       rewardAmountForWeek = amount
-        .times(BigInt.fromI32(10000).minus(rewardFee))
-        .div(BigInt.fromI32(10000))
         .times(BigInt.fromI32(604800))
         .div(rewardsDuration)
     }

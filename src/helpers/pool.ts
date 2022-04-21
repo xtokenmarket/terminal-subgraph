@@ -45,6 +45,16 @@ export function fetchRewardTokens(poolAddress: Address): Array<Address> {
   return rewardTokens
 }
 
+export function fetchRewardInfo(poolAddress: Address, tokenAddress: Address): BigInt {
+  let contract = Pool.bind(poolAddress)
+  let rewardAmount = ZERO_BI
+  let rewardAmountResult = contract.try_rewardInfo(tokenAddress)
+  if (!rewardAmountResult.reverted) {
+    rewardAmount = rewardAmountResult.value.value2
+  }
+  return rewardAmount
+}
+
 export function fetchRewardsAreEscrowed(poolAddress: Address): boolean {
   let contract = Pool.bind(poolAddress)
   let rewardsAreEscrowed = false

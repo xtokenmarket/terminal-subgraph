@@ -491,6 +491,23 @@ export class Pool extends Entity {
     }
   }
 
+  get createdAt(): BigInt | null {
+    let value = this.get("createdAt");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set createdAt(value: BigInt | null) {
+    if (value === null) {
+      this.unset("createdAt");
+    } else {
+      this.set("createdAt", Value.fromBigInt(value as BigInt));
+    }
+  }
+
   get deposits(): Array<string> | null {
     let value = this.get("deposits");
     if (value === null || value.kind == ValueKind.NULL) {
@@ -576,6 +593,40 @@ export class Pool extends Entity {
       this.unset("vests");
     } else {
       this.set("vests", Value.fromStringArray(value as Array<string>));
+    }
+  }
+
+  get collects(): Array<string> | null {
+    let value = this.get("collects");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set collects(value: Array<string> | null) {
+    if (value === null) {
+      this.unset("collects");
+    } else {
+      this.set("collects", Value.fromStringArray(value as Array<string>));
+    }
+  }
+
+  get reinvests(): Array<string> | null {
+    let value = this.get("reinvests");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set reinvests(value: Array<string> | null) {
+    if (value === null) {
+      this.unset("reinvests");
+    } else {
+      this.set("reinvests", Value.fromStringArray(value as Array<string>));
     }
   }
 }
@@ -806,6 +857,15 @@ export class RewardClaim extends Entity {
   set timestamp(value: BigInt) {
     this.set("timestamp", Value.fromBigInt(value));
   }
+
+  get txHash(): string {
+    let value = this.get("txHash");
+    return value.toString();
+  }
+
+  set txHash(value: string) {
+    this.set("txHash", Value.fromString(value));
+  }
 }
 
 export class RewardInitiation extends Entity {
@@ -966,13 +1026,13 @@ export class Vest extends Entity {
     this.set("token", Value.fromString(value));
   }
 
-  get time(): BigInt {
-    let value = this.get("time");
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
     return value.toBigInt();
   }
 
-  set time(value: BigInt) {
-    this.set("time", Value.fromBigInt(value));
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
   }
 
   get value(): BigInt {
@@ -991,6 +1051,15 @@ export class Vest extends Entity {
 
   set period(value: BigInt) {
     this.set("period", Value.fromBigInt(value));
+  }
+
+  get txHash(): string {
+    let value = this.get("txHash");
+    return value.toString();
+  }
+
+  set txHash(value: string) {
+    this.set("txHash", Value.fromString(value));
   }
 }
 
@@ -1039,6 +1108,122 @@ export class Uniswap extends Entity {
     } else {
       this.set("pool", Value.fromString(value as string));
     }
+  }
+}
+
+export class Collect extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Collect entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Collect entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Collect", id.toString(), this);
+  }
+
+  static load(id: string): Collect | null {
+    return store.get("Collect", id) as Collect | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get token0Fee(): BigInt {
+    let value = this.get("token0Fee");
+    return value.toBigInt();
+  }
+
+  set token0Fee(value: BigInt) {
+    this.set("token0Fee", Value.fromBigInt(value));
+  }
+
+  get token1Fee(): BigInt {
+    let value = this.get("token1Fee");
+    return value.toBigInt();
+  }
+
+  set token1Fee(value: BigInt) {
+    this.set("token1Fee", Value.fromBigInt(value));
+  }
+
+  get pool(): string {
+    let value = this.get("pool");
+    return value.toString();
+  }
+
+  set pool(value: string) {
+    this.set("pool", Value.fromString(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    return value.toBigInt();
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+}
+
+export class Reinvest extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Reinvest entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Reinvest entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Reinvest", id.toString(), this);
+  }
+
+  static load(id: string): Reinvest | null {
+    return store.get("Reinvest", id) as Reinvest | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get pool(): string {
+    let value = this.get("pool");
+    return value.toString();
+  }
+
+  set pool(value: string) {
+    this.set("pool", Value.fromString(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    return value.toBigInt();
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
   }
 }
 

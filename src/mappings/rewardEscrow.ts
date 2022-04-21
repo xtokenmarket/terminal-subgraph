@@ -10,9 +10,10 @@ import { Vested, VestingPeriodSet } from "../types/RewardEscrow/RewardEscrow";
 import { Pool, Token, User, Vest } from "../types/schema";
 
 export function handleVested(event: Vested): void {
-  let vest = Vest.load(event.transaction.hash.toHexString())
+  let id = event.transaction.hash.toHexString() + event.params.token.toHexString()
+  let vest = Vest.load(id)
   if (!vest) {
-    vest = new Vest(event.transaction.hash.toHexString())
+    vest = new Vest(id)
   }
 
   let params = event.params
@@ -48,9 +49,10 @@ export function handleVested(event: Vested): void {
   }
   vest.token = token.id
 
-  vest.time = params.time
+  vest.timestamp = params.time
   vest.value = params.value
   vest.period = ZERO_BI
+  vest.txHash = event.transaction.hash.toHexString()
 
   vest.save()
 }
