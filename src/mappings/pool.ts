@@ -144,10 +144,10 @@ export function handleWithdraw(event: WithdrawEvent): void {
 }
 
 export function handleOwnershipTransferred(event: OwnershipTransferred): void {
-  let pool = Pool.load(event.transaction.from.toHexString())
+  let pool = Pool.load(event.address.toHexString())
   
   if (!pool) {
-    return
+    pool = new Pool(event.address.toHexString())
   }
   
   let newOwner = User.load(event.params.newOwner.toHexString())

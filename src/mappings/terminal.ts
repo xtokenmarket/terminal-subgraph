@@ -25,7 +25,7 @@ import {
 } from "../helpers/pool"
 import { fetchVestingPeriod } from "../helpers/rewardEscrow"
 import { fetchRewardEscrow, fetchRewardFee } from "../helpers/terminal"
-import { Pool, RewardInitiation, Terminal, Token, Uniswap, User } from "../types/schema"
+import { Pool, Reward, RewardInitiation, Terminal, Token, Uniswap, User } from "../types/schema"
 import { Pool as PoolTemplate, UniswapV3Pool } from "../types/templates"
 import { 
   DeployedIncentivizedPool,
@@ -212,14 +212,36 @@ export function handleInitiatedRewardsProgram(event: InitiatedRewardsProgram): v
   })
 
   rewardFee = fetchRewardFee(event.address)
+
   poolAddressGb = params.clrInstance
+  rewardsDuration = params.rewardsDuration
+
   pool.rewardTokens = rewardTokens.map<string>(token => {
-    log.warning("Reward Token: {} - {}", [poolAddressGb.toHexString(), token.toHexString()])
     return token.toHexString()
   })
+
+  pool.rewards = rewardTokens.map<string>(token => {
+    let id = poolAddressGb.toHexString() + token.toHexString()
+    let reward = Reward.load(id)
+    if (!reward) {
+      reward = new Reward(id)
+    }
+    reward.token = token.toHexString()
+
+    reward.amount = fetchRewardInfo(poolAddressGb, token)
+    reward.amountPerWeek = ZERO_BI
+    if (rewardsDuration !== ZERO_BI) {
+      reward.amountPerWeek = reward.amount
+        .times(BigInt.fromI32(604800))
+        .div(rewardsDuration)
+    }
+    reward.save()
+
+    return reward.id
+  })
+
   pool.rewardAmounts = rewardTokens.map<BigInt>((token) => {
-    let amount = fetchRewardInfo(poolAddressGb, token)
-    return amount.times(BigInt.fromI32(10000).minus(rewardFee)).div(BigInt.fromI32(10000))
+    return fetchRewardInfo(poolAddressGb, token)
   })
   pool.rewardDuration = params.rewardsDuration
   pool.bufferTokenBalance = fetchBufferTokenBalance(params.clrInstance)
@@ -227,7 +249,6 @@ export function handleInitiatedRewardsProgram(event: InitiatedRewardsProgram): v
   if (pool.uniswapPool) {
     pool.price = fetchPoolPriceWithDecimals(Address.fromString(pool.uniswapPool))
   }
-  rewardsDuration = params.rewardsDuration
   
   pool.rewardAmountsPerWeek = pool.rewardAmounts.map<BigInt>((amount) => {
     let rewardAmountForWeek: BigInt = ZERO_BI
@@ -254,6 +275,7 @@ export function handleInitiatedRewardsProgram(event: InitiatedRewardsProgram): v
 
   rewardInitiation.user = user.id
   rewardInitiation.pool = pool.id
+  rewardInitiation.rewards = pool.rewards
   rewardInitiation.tokens = params.rewardTokens.map<string>(token => token.toHexString())
   rewardInitiation.amounts = params.totalRewardAmounts
   rewardInitiation.duration = params.rewardsDuration

@@ -243,6 +243,23 @@ export class Pool extends Entity {
     }
   }
 
+  get rewards(): Array<string> | null {
+    let value = this.get("rewards");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set rewards(value: Array<string> | null) {
+    if (value === null) {
+      this.unset("rewards");
+    } else {
+      this.set("rewards", Value.fromStringArray(value as Array<string>));
+    }
+  }
+
   get rewardTokens(): Array<string> | null {
     let value = this.get("rewardTokens");
     if (value === null || value.kind == ValueKind.NULL) {
@@ -631,6 +648,64 @@ export class Pool extends Entity {
   }
 }
 
+export class Reward extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Reward entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Reward entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Reward", id.toString(), this);
+  }
+
+  static load(id: string): Reward | null {
+    return store.get("Reward", id) as Reward | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get token(): string {
+    let value = this.get("token");
+    return value.toString();
+  }
+
+  set token(value: string) {
+    this.set("token", Value.fromString(value));
+  }
+
+  get amount(): BigInt {
+    let value = this.get("amount");
+    return value.toBigInt();
+  }
+
+  set amount(value: BigInt) {
+    this.set("amount", Value.fromBigInt(value));
+  }
+
+  get amountPerWeek(): BigInt {
+    let value = this.get("amountPerWeek");
+    return value.toBigInt();
+  }
+
+  set amountPerWeek(value: BigInt) {
+    this.set("amountPerWeek", Value.fromBigInt(value));
+  }
+}
+
 export class Deposit extends Entity {
   constructor(id: string) {
     super();
@@ -914,6 +989,23 @@ export class RewardInitiation extends Entity {
 
   set pool(value: string) {
     this.set("pool", Value.fromString(value));
+  }
+
+  get rewards(): Array<string> | null {
+    let value = this.get("rewards");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set rewards(value: Array<string> | null) {
+    if (value === null) {
+      this.unset("rewards");
+    } else {
+      this.set("rewards", Value.fromStringArray(value as Array<string>));
+    }
   }
 
   get tokens(): Array<string> | null {

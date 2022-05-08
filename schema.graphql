@@ -26,6 +26,7 @@ type Pool @entity {
 
   owner: User
   manager: User
+  rewards: [Reward!]
   rewardTokens: [Token!]
   rewardAmounts: [BigInt!]
   rewardAmountsPerWeek: [BigInt!]
@@ -54,6 +55,15 @@ type Pool @entity {
   vests: [Vest!] @derivedFrom(field: "pool")
   collects: [Collect!] @derivedFrom(field: "pool")
   reinvests: [Reinvest!] @derivedFrom(field: "pool")
+}
+
+type Reward @entity {
+  # Pool - Token - id concatenation
+  id: ID!
+
+  token: Token!
+  amount: BigInt!
+  amountPerWeek: BigInt!
 }
 
 type Deposit @entity {
@@ -100,6 +110,7 @@ type RewardInitiation @entity {
 
   user: User!
   pool: Pool!
+  rewards: [Reward!]
   tokens: [Token!]
   amounts: [BigInt!]
   duration: BigInt!
