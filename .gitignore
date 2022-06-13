@@ -7,3 +7,7 @@ subgraph.arbitrum.yaml
 subgraph.optimism.yaml
 subgraph.polygon.yaml
 subgraph.kovan.yaml
+
+# IDE
+.idea
+.vscode

@@ -920,6 +920,36 @@ export class RenounceOwnershipCall__Outputs {
   }
 }
 
+export class SetCLRDeployerCall extends ethereum.Call {
+  get inputs(): SetCLRDeployerCall__Inputs {
+    return new SetCLRDeployerCall__Inputs(this);
+  }
+
+  get outputs(): SetCLRDeployerCall__Outputs {
+    return new SetCLRDeployerCall__Outputs(this);
+  }
+}
+
+export class SetCLRDeployerCall__Inputs {
+  _call: SetCLRDeployerCall;
+
+  constructor(call: SetCLRDeployerCall) {
+    this._call = call;
+  }
+
+  get newDeployer(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class SetCLRDeployerCall__Outputs {
+  _call: SetCLRDeployerCall;
+
+  constructor(call: SetCLRDeployerCall) {
+    this._call = call;
+  }
+}
+
 export class TransferOwnershipCall extends ethereum.Call {
   get inputs(): TransferOwnershipCall__Inputs {
     return new TransferOwnershipCall__Inputs(this);
