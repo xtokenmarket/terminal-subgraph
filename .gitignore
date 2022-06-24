@@ -7,6 +7,7 @@ subgraph.arbitrum.yaml
 subgraph.optimism.yaml
 subgraph.polygon.yaml
 subgraph.kovan.yaml
+subgraph.goerli.yaml
 
 # IDE
 .idea

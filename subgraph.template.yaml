@@ -115,6 +115,8 @@ templates:
           handler: handleRewardsDurationUpdated
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
+        - event: Rebalanced(int24,int24,int24,int24)
+          handler: handleRebalanced
   - kind: ethereum/contract
     name: UniswapV3Pool
     network: {{network}}
