@@ -142,6 +142,36 @@ export class Paused__Params {
   }
 }
 
+export class Rebalanced extends ethereum.Event {
+  get params(): Rebalanced__Params {
+    return new Rebalanced__Params(this);
+  }
+}
+
+export class Rebalanced__Params {
+  _event: Rebalanced;
+
+  constructor(event: Rebalanced) {
+    this._event = event;
+  }
+
+  get oldLowerTick(): i32 {
+    return this._event.parameters[0].value.toI32();
+  }
+
+  get oldUpperTick(): i32 {
+    return this._event.parameters[1].value.toI32();
+  }
+
+  get newLowerTick(): i32 {
+    return this._event.parameters[2].value.toI32();
+  }
+
+  get newUpperTick(): i32 {
+    return this._event.parameters[3].value.toI32();
+  }
+}
+
 export class Reinvest extends ethereum.Event {
   get params(): Reinvest__Params {
     return new Reinvest__Params(this);
@@ -911,6 +941,21 @@ export class Pool extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
+  getNAV(): BigInt {
+    let result = super.call("getNAV", "getNAV():(uint256)", []);
+
+    return result[0].toBigInt();
+  }
+
+  try_getNAV(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("getNAV", "getNAV():(uint256)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
   getPositionLiquidity(): BigInt {
     let result = super.call(
       "getPositionLiquidity",
@@ -1034,6 +1079,21 @@ export class Pool extends ethereum.SmartContract {
         value[1].toBigInt()
       )
     );
+  }
+
+  getTWAP(): BigInt {
+    let result = super.call("getTWAP", "getTWAP():(int128)", []);
+
+    return result[0].toBigInt();
+  }
+
+  try_getTWAP(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("getTWAP", "getTWAP():(int128)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
   getTicks(): Pool__getTicksResult {
@@ -2271,6 +2331,48 @@ export class PauseContractCall__Outputs {
 
   get value0(): boolean {
     return this._call.outputValues[0].value.toBoolean();
+  }
+}
+
+export class RebalanceCall extends ethereum.Call {
+  get inputs(): RebalanceCall__Inputs {
+    return new RebalanceCall__Inputs(this);
+  }
+
+  get outputs(): RebalanceCall__Outputs {
+    return new RebalanceCall__Outputs(this);
+  }
+}
+
+export class RebalanceCall__Inputs {
+  _call: RebalanceCall;
+
+  constructor(call: RebalanceCall) {
+    this._call = call;
+  }
+
+  get newTickLower(): i32 {
+    return this._call.inputValues[0].value.toI32();
+  }
+
+  get newTickUpper(): i32 {
+    return this._call.inputValues[1].value.toI32();
+  }
+
+  get minAmount0Staked(): BigInt {
+    return this._call.inputValues[2].value.toBigInt();
+  }
+
+  get minAmount1Staked(): BigInt {
+    return this._call.inputValues[3].value.toBigInt();
+  }
+}
+
+export class RebalanceCall__Outputs {
+  _call: RebalanceCall;
+
+  constructor(call: RebalanceCall) {
+    this._call = call;
   }
 }
 

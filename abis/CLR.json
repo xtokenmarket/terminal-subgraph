@@ -115,6 +115,37 @@
   },
   {
     "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "int24",
+        "name": "oldLowerTick",
+        "type": "int24"
+      },
+      {
+        "indexed": false,
+        "internalType": "int24",
+        "name": "oldUpperTick",
+        "type": "int24"
+      },
+      {
+        "indexed": false,
+        "internalType": "int24",
+        "name": "newLowerTick",
+        "type": "int24"
+      },
+      {
+        "indexed": false,
+        "internalType": "int24",
+        "name": "newUpperTick",
+        "type": "int24"
+      }
+    ],
+    "name": "Rebalanced",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
     "inputs": [],
     "name": "Reinvest",
     "type": "event"
@@ -674,6 +705,19 @@
   },
   {
     "inputs": [],
+    "name": "getNAV",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "nav",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "getPositionLiquidity",
     "outputs": [
       {
@@ -743,6 +787,19 @@
         "internalType": "uint256",
         "name": "amount1",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getTWAP",
+    "outputs": [
+      {
+        "internalType": "int128",
+        "name": "twap",
+        "type": "int128"
       }
     ],
     "stateMutability": "view",
@@ -1054,6 +1111,34 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "int24",
+        "name": "newTickLower",
+        "type": "int24"
+      },
+      {
+        "internalType": "int24",
+        "name": "newTickUpper",
+        "type": "int24"
+      },
+      {
+        "internalType": "uint256",
+        "name": "minAmount0Staked",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "minAmount1Staked",
+        "type": "uint256"
+      }
+    ],
+    "name": "rebalance",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

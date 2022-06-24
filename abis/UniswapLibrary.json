@@ -46,6 +46,94 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "pool",
+        "type": "address"
+      },
+      {
+        "internalType": "uint32",
+        "name": "twapPeriod",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint8",
+        "name": "token0Decimals",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "token1Decimals",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenDiffDecimalMultiplier",
+        "type": "uint256"
+      }
+    ],
+    "name": "getAmountInAsset0Terms",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "pool",
+        "type": "address"
+      },
+      {
+        "internalType": "uint32",
+        "name": "twapPeriod",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint8",
+        "name": "token0Decimals",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "token1Decimals",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenDiffDecimalMultiplier",
+        "type": "uint256"
+      }
+    ],
+    "name": "getAmountInAsset1Terms",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint128",
         "name": "liquidity",
         "type": "uint128"
@@ -86,8 +174,13 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "token0",
+        "name": "pool",
         "type": "address"
+      },
+      {
+        "internalType": "uint32",
+        "name": "twapPeriod",
+        "type": "uint32"
       },
       {
         "internalType": "uint8",
@@ -95,22 +188,22 @@
         "type": "uint8"
       },
       {
-        "internalType": "uint256",
-        "name": "token0DecimalMultiplier",
-        "type": "uint256"
+        "internalType": "uint8",
+        "name": "token1Decimals",
+        "type": "uint8"
       },
       {
         "internalType": "uint256",
-        "name": "rewardAmountRemaining",
+        "name": "tokenDiffDecimalMultiplier",
         "type": "uint256"
       }
     ],
-    "name": "getBufferToken0Balance",
+    "name": "getAsset0Price",
     "outputs": [
       {
-        "internalType": "uint256",
-        "name": "amount0",
-        "type": "uint256"
+        "internalType": "int128",
+        "name": "",
+        "type": "int128"
       }
     ],
     "stateMutability": "view",
@@ -120,8 +213,18 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "token1",
+        "name": "pool",
         "type": "address"
+      },
+      {
+        "internalType": "uint32",
+        "name": "twapPeriod",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint8",
+        "name": "token0Decimals",
+        "type": "uint8"
       },
       {
         "internalType": "uint8",
@@ -130,20 +233,28 @@
       },
       {
         "internalType": "uint256",
-        "name": "token1DecimalMultiplier",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "rewardAmountRemaining",
+        "name": "tokenDiffDecimalMultiplier",
         "type": "uint256"
       }
     ],
-    "name": "getBufferToken1Balance",
+    "name": "getAsset1Price",
+    "outputs": [
+      {
+        "internalType": "int128",
+        "name": "",
+        "type": "int128"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getBufferBalance",
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "amount1",
+        "name": "",
         "type": "uint256"
       }
     ],
@@ -172,11 +283,6 @@
           {
             "internalType": "uint256",
             "name": "token1DecimalMultiplier",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "tokenDiffDecimalMultiplier",
             "type": "uint256"
           },
           {
@@ -255,6 +361,19 @@
         "internalType": "uint128",
         "name": "liquidity",
         "type": "uint128"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getNav",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -358,6 +477,19 @@
       }
     ],
     "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getStakedBalance",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
