@@ -378,6 +378,29 @@ export class Terminal extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
+  isRebalanceEnabled(param0: Address): boolean {
+    let result = super.call(
+      "isRebalanceEnabled",
+      "isRebalanceEnabled(address):(bool)",
+      [ethereum.Value.fromAddress(param0)]
+    );
+
+    return result[0].toBoolean();
+  }
+
+  try_isRebalanceEnabled(param0: Address): ethereum.CallResult<boolean> {
+    let result = super.tryCall(
+      "isRebalanceEnabled",
+      "isRebalanceEnabled(address):(bool)",
+      [ethereum.Value.fromAddress(param0)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBoolean());
+  }
+
   owner(): Address {
     let result = super.call("owner", "owner():(address)", []);
 
@@ -708,6 +731,36 @@ export class DisableCustomDeploymentFeeCall__Outputs {
   }
 }
 
+export class DisableRebalanceForPoolCall extends ethereum.Call {
+  get inputs(): DisableRebalanceForPoolCall__Inputs {
+    return new DisableRebalanceForPoolCall__Inputs(this);
+  }
+
+  get outputs(): DisableRebalanceForPoolCall__Outputs {
+    return new DisableRebalanceForPoolCall__Outputs(this);
+  }
+}
+
+export class DisableRebalanceForPoolCall__Inputs {
+  _call: DisableRebalanceForPoolCall;
+
+  constructor(call: DisableRebalanceForPoolCall) {
+    this._call = call;
+  }
+
+  get pool(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class DisableRebalanceForPoolCall__Outputs {
+  _call: DisableRebalanceForPoolCall;
+
+  constructor(call: DisableRebalanceForPoolCall) {
+    this._call = call;
+  }
+}
+
 export class EnableCustomDeploymentFeeCall extends ethereum.Call {
   get inputs(): EnableCustomDeploymentFeeCall__Inputs {
     return new EnableCustomDeploymentFeeCall__Inputs(this);
@@ -738,6 +791,36 @@ export class EnableCustomDeploymentFeeCall__Outputs {
   _call: EnableCustomDeploymentFeeCall;
 
   constructor(call: EnableCustomDeploymentFeeCall) {
+    this._call = call;
+  }
+}
+
+export class EnableRebalanceForPoolCall extends ethereum.Call {
+  get inputs(): EnableRebalanceForPoolCall__Inputs {
+    return new EnableRebalanceForPoolCall__Inputs(this);
+  }
+
+  get outputs(): EnableRebalanceForPoolCall__Outputs {
+    return new EnableRebalanceForPoolCall__Outputs(this);
+  }
+}
+
+export class EnableRebalanceForPoolCall__Inputs {
+  _call: EnableRebalanceForPoolCall;
+
+  constructor(call: EnableRebalanceForPoolCall) {
+    this._call = call;
+  }
+
+  get pool(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class EnableRebalanceForPoolCall__Outputs {
+  _call: EnableRebalanceForPoolCall;
+
+  constructor(call: EnableRebalanceForPoolCall) {
     this._call = call;
   }
 }
@@ -916,36 +999,6 @@ export class RenounceOwnershipCall__Outputs {
   _call: RenounceOwnershipCall;
 
   constructor(call: RenounceOwnershipCall) {
-    this._call = call;
-  }
-}
-
-export class SetCLRDeployerCall extends ethereum.Call {
-  get inputs(): SetCLRDeployerCall__Inputs {
-    return new SetCLRDeployerCall__Inputs(this);
-  }
-
-  get outputs(): SetCLRDeployerCall__Outputs {
-    return new SetCLRDeployerCall__Outputs(this);
-  }
-}
-
-export class SetCLRDeployerCall__Inputs {
-  _call: SetCLRDeployerCall;
-
-  constructor(call: SetCLRDeployerCall) {
-    this._call = call;
-  }
-
-  get newDeployer(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-}
-
-export class SetCLRDeployerCall__Outputs {
-  _call: SetCLRDeployerCall;
-
-  constructor(call: SetCLRDeployerCall) {
     this._call = call;
   }
 }
