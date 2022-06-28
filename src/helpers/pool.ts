@@ -153,3 +153,25 @@ export function fetchPoolPriceWithDecimals(poolAddress: Address): BigInt {
   }
   return price
 }
+
+export function fetchPoolPrice(poolAddress: Address): BigInt {
+  let contract = UniswapLibrary.bind(Address.fromString(UNISWAP_LIBRARY_ADDRESS))
+  let price = ZERO_BI
+  let priceResult = contract.try_getPoolPrice(poolAddress)
+  if (!priceResult.reverted) {
+    price = priceResult.value;
+  }
+  return price
+}
+
+/**
+ * Calculate the uni v3 pool price with 18 decimals
+ * @param poolAddress 
+ * @returns 
+ */
+export function calculatePoolPriceWithDecimals(poolAddress: Address): BigInt {
+  let price = fetchPoolPrice(poolAddress);
+  price = price.equals(ZERO_BI) ? price : 
+          price.pow(2).times(BigInt.fromI32(10).pow(18)).rightShift(192)
+  return price;
+}

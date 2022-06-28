@@ -1,8 +1,8 @@
-import { Address, log } from "@graphprotocol/graph-ts";
+import { Address, BigInt, log } from "@graphprotocol/graph-ts";
 import { 
+  calculatePoolPriceWithDecimals,
   fetchBufferTokenBalance,
-  fetchPoolPriceWithDecimals,
-  fetchStakedTokenBalance
+  fetchStakedTokenBalance,
 } from "../helpers/pool";
 import { Pool, Uniswap } from "../types/schema";
 import { Burn, Collect, Swap } from "../types/templates/UniswapV3Pool/UniswapV3Pool";
@@ -19,7 +19,7 @@ export function handleSwap(event: Swap): void {
       pool.bufferTokenBalance = fetchBufferTokenBalance(Address.fromString(uniswap.pool))
       pool.stakedTokenBalance = fetchStakedTokenBalance(Address.fromString(uniswap.pool))
       if (pool.uniswapPool) {
-        pool.price = fetchPoolPriceWithDecimals(Address.fromString(pool.uniswapPool))
+        pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool))
       }
       pool.save()
     }
@@ -36,7 +36,7 @@ export function handleBurn(event: Burn): void {
     let pool = Pool.load(uniswap.pool)
     if (pool) {
       if (pool.uniswapPool) {
-        pool.price = fetchPoolPriceWithDecimals(Address.fromString(pool.uniswapPool))
+        pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool))
         pool.save()
       }
     }
@@ -53,7 +53,7 @@ export function handleCollect(event: Collect): void {
     let pool = Pool.load(uniswap.pool)
     if (pool) {
       if (pool.uniswapPool) {
-        pool.price = fetchPoolPriceWithDecimals(Address.fromString(pool.uniswapPool))
+        pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool))
         pool.save()
       }
     }

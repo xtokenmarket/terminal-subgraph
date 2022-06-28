@@ -8,6 +8,7 @@ import {
   MINUS_ONE_BI
 } from "../helpers/general"
 import {
+  calculatePoolPriceWithDecimals,
   fetchBufferTokenBalance,
   fetchOwner,
   fetchPeriodFinish,
@@ -143,7 +144,7 @@ export function handleDeployedIncentivizedPool(event: DeployedIncentivizedPool):
   pool.rewardDuration = BigInt.fromI32(0)
   pool.rewardsAreEscrowed = fetchRewardsAreEscrowed(poolAddress)
   if (pool.uniswapPool) {
-    pool.price = fetchPoolPriceWithDecimals(Address.fromString(pool.uniswapPool))
+    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool))
   }
 
   pool.tokenId = fetchTokenId(poolAddress)
@@ -247,7 +248,7 @@ export function handleInitiatedRewardsProgram(event: InitiatedRewardsProgram): v
   pool.bufferTokenBalance = fetchBufferTokenBalance(params.clrInstance)
   pool.stakedTokenBalance = fetchStakedTokenBalance(params.clrInstance)
   if (pool.uniswapPool) {
-    pool.price = fetchPoolPriceWithDecimals(Address.fromString(pool.uniswapPool))
+    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool))
   }
   
   pool.rewardAmountsPerWeek = pool.rewardAmounts.map<BigInt>((amount) => {
