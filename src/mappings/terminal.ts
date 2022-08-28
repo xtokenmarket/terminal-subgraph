@@ -13,7 +13,6 @@ import {
   fetchOwner,
   fetchPeriodFinish,
   fetchPoolFee,
-  fetchPoolPriceWithDecimals,
   fetchRewardInfo,
   fetchRewardsAreEscrowed,
   fetchRewardTokens,

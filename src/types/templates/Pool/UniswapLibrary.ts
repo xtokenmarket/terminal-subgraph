@@ -460,6 +460,84 @@ export class UniswapLibrary extends ethereum.SmartContract {
     );
   }
 
+  getLiquidityForAmount0(
+    priceLower: BigInt,
+    priceUpper: BigInt,
+    amount0: BigInt
+  ): BigInt {
+    let result = super.call(
+      "getLiquidityForAmount0",
+      "getLiquidityForAmount0(uint160,uint160,uint256):(uint128)",
+      [
+        ethereum.Value.fromUnsignedBigInt(priceLower),
+        ethereum.Value.fromUnsignedBigInt(priceUpper),
+        ethereum.Value.fromUnsignedBigInt(amount0)
+      ]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_getLiquidityForAmount0(
+    priceLower: BigInt,
+    priceUpper: BigInt,
+    amount0: BigInt
+  ): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "getLiquidityForAmount0",
+      "getLiquidityForAmount0(uint160,uint160,uint256):(uint128)",
+      [
+        ethereum.Value.fromUnsignedBigInt(priceLower),
+        ethereum.Value.fromUnsignedBigInt(priceUpper),
+        ethereum.Value.fromUnsignedBigInt(amount0)
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  getLiquidityForAmount1(
+    priceLower: BigInt,
+    priceUpper: BigInt,
+    amount1: BigInt
+  ): BigInt {
+    let result = super.call(
+      "getLiquidityForAmount1",
+      "getLiquidityForAmount1(uint160,uint160,uint256):(uint128)",
+      [
+        ethereum.Value.fromUnsignedBigInt(priceLower),
+        ethereum.Value.fromUnsignedBigInt(priceUpper),
+        ethereum.Value.fromUnsignedBigInt(amount1)
+      ]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_getLiquidityForAmount1(
+    priceLower: BigInt,
+    priceUpper: BigInt,
+    amount1: BigInt
+  ): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "getLiquidityForAmount1",
+      "getLiquidityForAmount1(uint160,uint160,uint256):(uint128)",
+      [
+        ethereum.Value.fromUnsignedBigInt(priceLower),
+        ethereum.Value.fromUnsignedBigInt(priceUpper),
+        ethereum.Value.fromUnsignedBigInt(amount1)
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
   getLiquidityForAmounts(
     amount0: BigInt,
     amount1: BigInt,
@@ -566,21 +644,37 @@ export class UniswapLibrary extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  getPoolPriceWithDecimals(_pool: Address): BigInt {
+  getPoolPriceWithDecimals(
+    _pool: Address,
+    token0Decimals: i32,
+    token1Decimals: i32
+  ): BigInt {
     let result = super.call(
       "getPoolPriceWithDecimals",
-      "getPoolPriceWithDecimals(address):(uint256)",
-      [ethereum.Value.fromAddress(_pool)]
+      "getPoolPriceWithDecimals(address,uint8,uint8):(uint256)",
+      [
+        ethereum.Value.fromAddress(_pool),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(token0Decimals)),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(token1Decimals))
+      ]
     );
 
     return result[0].toBigInt();
   }
 
-  try_getPoolPriceWithDecimals(_pool: Address): ethereum.CallResult<BigInt> {
+  try_getPoolPriceWithDecimals(
+    _pool: Address,
+    token0Decimals: i32,
+    token1Decimals: i32
+  ): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
       "getPoolPriceWithDecimals",
-      "getPoolPriceWithDecimals(address):(uint256)",
-      [ethereum.Value.fromAddress(_pool)]
+      "getPoolPriceWithDecimals(address,uint8,uint8):(uint256)",
+      [
+        ethereum.Value.fromAddress(_pool),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(token0Decimals)),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(token1Decimals))
+      ]
     );
     if (result.reverted) {
       return new ethereum.CallResult();

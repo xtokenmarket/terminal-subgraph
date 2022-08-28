@@ -330,6 +330,64 @@
   {
     "inputs": [
       {
+        "internalType": "uint160",
+        "name": "priceLower",
+        "type": "uint160"
+      },
+      {
+        "internalType": "uint160",
+        "name": "priceUpper",
+        "type": "uint160"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount0",
+        "type": "uint256"
+      }
+    ],
+    "name": "getLiquidityForAmount0",
+    "outputs": [
+      {
+        "internalType": "uint128",
+        "name": "liquidity",
+        "type": "uint128"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint160",
+        "name": "priceLower",
+        "type": "uint160"
+      },
+      {
+        "internalType": "uint160",
+        "name": "priceUpper",
+        "type": "uint160"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount1",
+        "type": "uint256"
+      }
+    ],
+    "name": "getLiquidityForAmount1",
+    "outputs": [
+      {
+        "internalType": "uint128",
+        "name": "liquidity",
+        "type": "uint128"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "amount0",
         "type": "uint256"
@@ -423,6 +481,16 @@
         "internalType": "address",
         "name": "_pool",
         "type": "address"
+      },
+      {
+        "internalType": "uint8",
+        "name": "token0Decimals",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "token1Decimals",
+        "type": "uint8"
       }
     ],
     "name": "getPoolPriceWithDecimals",
