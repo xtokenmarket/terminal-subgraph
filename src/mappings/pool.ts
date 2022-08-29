@@ -21,7 +21,8 @@ import {
   MINUS_ONE_BI
 } from "../helpers/general";
 import { log, Address } from "@graphprotocol/graph-ts";
-import { calculatePoolPriceWithDecimals, fetchBufferTokenBalance, fetchPeriodFinish, fetchPoolPriceWithDecimals, fetchStakedTokenBalance } from "../helpers/pool";
+import { calculatePoolPriceWithDecimals, fetchBufferTokenBalance, fetchPeriodFinish, fetchStakedTokenBalance } from "../helpers/pool";
+import { Rebalanced } from "../types/Terminal/Pool";
 
 export function handleManagerSet(event: ManagerSet): void {
   let pool = Pool.load(event.address.toHexString())
@@ -305,5 +306,19 @@ export function handleTransfer(event: Transfer): void {
   if (pool.uniswapPool) {
     pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool))
   }
+  pool.save()
+}
+
+export function handleRebalanced(event: Rebalanced): void {
+  let pool = Pool.load(event.address.toHexString())
+
+  if (!pool) {
+    pool = new Pool(event.address.toHexString());
+    pool.save()
+  }
+
+  pool.lowerTick = event.params.newLowerTick
+  pool.upperTick = event.params.newUpperTick
+
   pool.save()
 }

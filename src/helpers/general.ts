@@ -87,3 +87,13 @@ export function fetchTokenDecimals(tokenAddress: Address): BigInt {
   return BigInt.fromI32(decimalValue as i32)
 }
 
+export function fetchTokenBalance(tokenAddress: Address, spender: Address): BigInt {
+  let contract = ERC20.bind(tokenAddress)
+  let balanceValue = BigInt.fromI32(0)
+  let balanceResult = contract.try_balanceOf(spender)
+  if (!balanceResult.reverted) {
+    balanceValue = balanceResult.value
+  }
+  return balanceValue
+}
+

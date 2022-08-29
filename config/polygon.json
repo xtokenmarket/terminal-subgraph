@@ -1,7 +1,7 @@
 {
   "network": "matic",
-  "address": "0x090559D58aAB8828C27eE7a7EAb18efD5bB90374",
-  "startBlock": 25871313,
-  "rewardEscrowAddress": "0x40E8cb3440C0B05EB20522D1F63397e5B36efcf2",
-  "rewardEscrowStartBlock": 25871283
+  "address": "0x154f7320398f37CD06F35Fede063ed5A1c26e22b",
+  "startBlock": 32341987,
+  "rewardEscrowAddress": "0x4C997Bb37ec13202c0142E9De8937743F0135047",
+  "rewardEscrowStartBlock": 32341961
 }

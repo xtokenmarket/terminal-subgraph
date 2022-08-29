@@ -142,6 +142,36 @@ export class Paused__Params {
   }
 }
 
+export class Rebalanced extends ethereum.Event {
+  get params(): Rebalanced__Params {
+    return new Rebalanced__Params(this);
+  }
+}
+
+export class Rebalanced__Params {
+  _event: Rebalanced;
+
+  constructor(event: Rebalanced) {
+    this._event = event;
+  }
+
+  get oldLowerTick(): i32 {
+    return this._event.parameters[0].value.toI32();
+  }
+
+  get oldUpperTick(): i32 {
+    return this._event.parameters[1].value.toI32();
+  }
+
+  get newLowerTick(): i32 {
+    return this._event.parameters[2].value.toI32();
+  }
+
+  get newUpperTick(): i32 {
+    return this._event.parameters[3].value.toI32();
+  }
+}
+
 export class Reinvest extends ethereum.Event {
   get params(): Reinvest__Params {
     return new Reinvest__Params(this);
@@ -366,6 +396,23 @@ export class Pool__calculatePoolMintedAmountsResult {
   }
 }
 
+export class Pool__calculateWithdrawAmountsResult {
+  value0: BigInt;
+  value1: BigInt;
+
+  constructor(value0: BigInt, value1: BigInt) {
+    this.value0 = value0;
+    this.value1 = value1;
+  }
+
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    return map;
+  }
+}
+
 export class Pool__collectResult {
   value0: BigInt;
   value1: BigInt;
@@ -384,23 +431,6 @@ export class Pool__collectResult {
 }
 
 export class Pool__getAmountsForLiquidityResult {
-  value0: BigInt;
-  value1: BigInt;
-
-  constructor(value0: BigInt, value1: BigInt) {
-    this.value0 = value0;
-    this.value1 = value1;
-  }
-
-  toMap(): TypedMap<string, ethereum.Value> {
-    let map = new TypedMap<string, ethereum.Value>();
-    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
-    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
-    return map;
-  }
-}
-
-export class Pool__getBufferTokenBalanceResult {
   value0: BigInt;
   value1: BigInt;
 
@@ -680,6 +710,41 @@ export class Pool extends ethereum.SmartContract {
     );
   }
 
+  calculateWithdrawAmounts(
+    stakedBalance: BigInt
+  ): Pool__calculateWithdrawAmountsResult {
+    let result = super.call(
+      "calculateWithdrawAmounts",
+      "calculateWithdrawAmounts(uint256):(uint256,uint256)",
+      [ethereum.Value.fromUnsignedBigInt(stakedBalance)]
+    );
+
+    return new Pool__calculateWithdrawAmountsResult(
+      result[0].toBigInt(),
+      result[1].toBigInt()
+    );
+  }
+
+  try_calculateWithdrawAmounts(
+    stakedBalance: BigInt
+  ): ethereum.CallResult<Pool__calculateWithdrawAmountsResult> {
+    let result = super.tryCall(
+      "calculateWithdrawAmounts",
+      "calculateWithdrawAmounts(uint256):(uint256,uint256)",
+      [ethereum.Value.fromUnsignedBigInt(stakedBalance)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new Pool__calculateWithdrawAmountsResult(
+        value[0].toBigInt(),
+        value[1].toBigInt()
+      )
+    );
+  }
+
   collect(): Pool__collectResult {
     let result = super.call("collect", "collect():(uint256,uint256)", []);
 
@@ -800,85 +865,6 @@ export class Pool extends ethereum.SmartContract {
     );
   }
 
-  getBufferToken0Balance(): BigInt {
-    let result = super.call(
-      "getBufferToken0Balance",
-      "getBufferToken0Balance():(uint256)",
-      []
-    );
-
-    return result[0].toBigInt();
-  }
-
-  try_getBufferToken0Balance(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "getBufferToken0Balance",
-      "getBufferToken0Balance():(uint256)",
-      []
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  getBufferToken1Balance(): BigInt {
-    let result = super.call(
-      "getBufferToken1Balance",
-      "getBufferToken1Balance():(uint256)",
-      []
-    );
-
-    return result[0].toBigInt();
-  }
-
-  try_getBufferToken1Balance(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "getBufferToken1Balance",
-      "getBufferToken1Balance():(uint256)",
-      []
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  getBufferTokenBalance(): Pool__getBufferTokenBalanceResult {
-    let result = super.call(
-      "getBufferTokenBalance",
-      "getBufferTokenBalance():(uint256,uint256)",
-      []
-    );
-
-    return new Pool__getBufferTokenBalanceResult(
-      result[0].toBigInt(),
-      result[1].toBigInt()
-    );
-  }
-
-  try_getBufferTokenBalance(): ethereum.CallResult<
-    Pool__getBufferTokenBalanceResult
-  > {
-    let result = super.tryCall(
-      "getBufferTokenBalance",
-      "getBufferTokenBalance():(uint256,uint256)",
-      []
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(
-      new Pool__getBufferTokenBalanceResult(
-        value[0].toBigInt(),
-        value[1].toBigInt()
-      )
-    );
-  }
-
   getLiquidityForAmounts(amount0: BigInt, amount1: BigInt): BigInt {
     let result = super.call(
       "getLiquidityForAmounts",
@@ -904,6 +890,21 @@ export class Pool extends ethereum.SmartContract {
         ethereum.Value.fromUnsignedBigInt(amount1)
       ]
     );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  getNAV(): BigInt {
+    let result = super.call("getNAV", "getNAV():(uint256)", []);
+
+    return result[0].toBigInt();
+  }
+
+  try_getNAV(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("getNAV", "getNAV():(uint256)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -1051,6 +1052,21 @@ export class Pool extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(
       new Pool__getTicksResult(value[0].toI32(), value[1].toI32())
     );
+  }
+
+  getVersion(): string {
+    let result = super.call("getVersion", "getVersion():(string)", []);
+
+    return result[0].toString();
+  }
+
+  try_getVersion(): ethereum.CallResult<string> {
+    let result = super.tryCall("getVersion", "getVersion():(string)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toString());
   }
 
   increaseAllowance(spender: Address, addedValue: BigInt): boolean {
@@ -1874,6 +1890,32 @@ export class ApproveCall__Outputs {
   }
 }
 
+export class ApproveOneInchCall extends ethereum.Call {
+  get inputs(): ApproveOneInchCall__Inputs {
+    return new ApproveOneInchCall__Inputs(this);
+  }
+
+  get outputs(): ApproveOneInchCall__Outputs {
+    return new ApproveOneInchCall__Outputs(this);
+  }
+}
+
+export class ApproveOneInchCall__Inputs {
+  _call: ApproveOneInchCall;
+
+  constructor(call: ApproveOneInchCall) {
+    this._call = call;
+  }
+}
+
+export class ApproveOneInchCall__Outputs {
+  _call: ApproveOneInchCall;
+
+  constructor(call: ApproveOneInchCall) {
+    this._call = call;
+  }
+}
+
 export class ClaimRewardCall extends ethereum.Call {
   get inputs(): ClaimRewardCall__Inputs {
     return new ClaimRewardCall__Inputs(this);
@@ -2015,11 +2057,11 @@ export class DepositCall__Inputs {
     this._call = call;
   }
 
-  get inputAsset(): i32 {
-    return this._call.inputValues[0].value.toI32();
+  get amount0(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
   }
 
-  get amount(): BigInt {
+  get amount1(): BigInt {
     return this._call.inputValues[1].value.toBigInt();
   }
 }
@@ -2274,6 +2316,52 @@ export class PauseContractCall__Outputs {
   }
 }
 
+export class RebalanceCall extends ethereum.Call {
+  get inputs(): RebalanceCall__Inputs {
+    return new RebalanceCall__Inputs(this);
+  }
+
+  get outputs(): RebalanceCall__Outputs {
+    return new RebalanceCall__Outputs(this);
+  }
+}
+
+export class RebalanceCall__Inputs {
+  _call: RebalanceCall;
+
+  constructor(call: RebalanceCall) {
+    this._call = call;
+  }
+
+  get newTickLower(): i32 {
+    return this._call.inputValues[0].value.toI32();
+  }
+
+  get newTickUpper(): i32 {
+    return this._call.inputValues[1].value.toI32();
+  }
+
+  get minAmount0Staked(): BigInt {
+    return this._call.inputValues[2].value.toBigInt();
+  }
+
+  get minAmount1Staked(): BigInt {
+    return this._call.inputValues[3].value.toBigInt();
+  }
+
+  get oneInchData(): Bytes {
+    return this._call.inputValues[4].value.toBytes();
+  }
+}
+
+export class RebalanceCall__Outputs {
+  _call: RebalanceCall;
+
+  constructor(call: RebalanceCall) {
+    this._call = call;
+  }
+}
+
 export class ReinvestCall extends ethereum.Call {
   get inputs(): ReinvestCall__Inputs {
     return new ReinvestCall__Inputs(this);
@@ -2516,6 +2604,14 @@ export class WithdrawCall__Inputs {
   get amount(): BigInt {
     return this._call.inputValues[0].value.toBigInt();
   }
+
+  get minReceivedAmount0(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
+  }
+
+  get minReceivedAmount1(): BigInt {
+    return this._call.inputValues[2].value.toBigInt();
+  }
 }
 
 export class WithdrawCall__Outputs {
@@ -2545,6 +2641,14 @@ export class WithdrawAndClaimRewardCall__Inputs {
 
   get amount(): BigInt {
     return this._call.inputValues[0].value.toBigInt();
+  }
+
+  get minReceivedAmount0(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
+  }
+
+  get minReceivedAmount1(): BigInt {
+    return this._call.inputValues[2].value.toBigInt();
   }
 }
 

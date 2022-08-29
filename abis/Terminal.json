@@ -368,6 +368,19 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "pool",
+        "type": "address"
+      }
+    ],
+    "name": "disableRebalanceForPool",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "deployer",
         "type": "address"
       },
@@ -378,6 +391,19 @@
       }
     ],
     "name": "enableCustomDeploymentFee",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "pool",
+        "type": "address"
+      }
+    ],
+    "name": "enableRebalanceForPool",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -528,6 +554,25 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "isRebalanceEnabled",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "owner",
     "outputs": [
@@ -597,19 +642,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "newDeployer",
-        "type": "address"
-      }
-    ],
-    "name": "setCLRDeployer",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

@@ -1,7 +1,15 @@
-import { Address, BigInt } from "@graphprotocol/graph-ts";
+import {Address, BigInt, log} from "@graphprotocol/graph-ts";
 import { UniswapLibrary } from "../types/templates/Pool/UniswapLibrary";
 import { Pool } from "../types/Terminal/Pool";
-import { ADDRESS_ZERO, UNISWAP_LIBRARY_ADDRESS, ZERO_BI } from "./general";
+import { Pool as EPool } from "../types/schema";
+import {
+  ADDRESS_ZERO,
+  fetchTokenBalance,
+  fetchTokenDecimals,
+  MINUS_ONE_BI,
+  UNISWAP_LIBRARY_ADDRESS,
+  ZERO_BI
+} from "./general";
 
 export function fetchStakedToken(poolAddress: Address): Address {
   let contract = Pool.bind(poolAddress)
@@ -116,18 +124,42 @@ export function fetchPeriodFinish(poolAddress: Address): BigInt {
 }
 
 export function fetchBufferTokenBalance(poolAddress: Address): Array<BigInt> {
-  let contract = Pool.bind(poolAddress)
-  let bufferTokenBalance: Array<BigInt> = new Array()
-  let bufferTokenBalanceResult = contract.try_getBufferTokenBalance()
-  if (!bufferTokenBalanceResult.reverted) {
-    bufferTokenBalance.push(bufferTokenBalanceResult.value.value0)
-    bufferTokenBalance.push(bufferTokenBalanceResult.value.value1)
-  } else {
-    bufferTokenBalance.push(ZERO_BI)
-    bufferTokenBalance.push(ZERO_BI)
+  let bufferTokenBalance: Array<BigInt> = [ZERO_BI, ZERO_BI]
+  let pool = EPool.load(poolAddress.toHexString())
+  if (!pool) {
+    log.debug("Terminal: pool {} not found", [poolAddress.toHexString()])
+    return bufferTokenBalance
   }
 
-  return bufferTokenBalance
+  let token0Address = Address.fromString(pool.token0)
+  let token1Address = Address.fromString(pool.token1)
+
+  let token0Decimals = fetchTokenDecimals(token0Address)
+  if (token0Decimals === MINUS_ONE_BI) {
+    log.debug("Terminal: decimals on token {} was null", [token0Address.toHexString()])
+    return bufferTokenBalance
+  }
+  let token1Decimals = fetchTokenDecimals(token1Address)
+  if (token0Decimals === MINUS_ONE_BI) {
+    log.debug("Terminal: decimals on token {} was null", [token1Address.toHexString()])
+    return bufferTokenBalance
+  }
+
+  let token0Balance = fetchTokenBalance(token0Address, poolAddress)
+  let token1Balance = fetchTokenBalance(token1Address, poolAddress)
+
+  // convert buffer token balances to Wei
+  let ETH_DECIMALS = BigInt.fromI32(18)
+  let t0DecimalMultiplier = BigInt.fromI32(10).pow(ETH_DECIMALS.minus(token0Decimals) as u8);
+  let t1DecimalMultiplier = BigInt.fromI32(10).pow(ETH_DECIMALS.minus(token1Decimals) as u8);
+  if(token0Decimals.lt(ETH_DECIMALS)) {
+    token0Balance = token0Balance.times(t0DecimalMultiplier);
+  }
+  if(token1Decimals.lt(ETH_DECIMALS)) {
+    token1Balance = token1Balance.times(t1DecimalMultiplier);
+  }
+
+  return [token0Balance, token1Balance]
 }
 
 export function fetchStakedTokenBalance(poolAddress: Address): Array<BigInt> {
@@ -142,16 +174,6 @@ export function fetchStakedTokenBalance(poolAddress: Address): Array<BigInt> {
     stakedTokenBalance.push(ZERO_BI)
   }
   return stakedTokenBalance
-}
-
-export function fetchPoolPriceWithDecimals(poolAddress: Address): BigInt {
-  let contract = UniswapLibrary.bind(Address.fromString(UNISWAP_LIBRARY_ADDRESS))
-  let price = ZERO_BI
-  let priceResult = contract.try_getPoolPriceWithDecimals(poolAddress)
-  if (!priceResult.reverted) {
-    price = priceResult.value
-  }
-  return price
 }
 
 export function fetchPoolPrice(poolAddress: Address): BigInt {
