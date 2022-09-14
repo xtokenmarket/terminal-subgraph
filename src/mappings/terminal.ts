@@ -13,7 +13,6 @@ import {
   fetchOwner,
   fetchPeriodFinish,
   fetchPoolFee,
-  fetchPoolPriceWithDecimals,
   fetchRewardInfo,
   fetchRewardsAreEscrowed,
   fetchRewardTokens,
@@ -24,15 +23,12 @@ import {
   fetchTradeFee,
   fetchUniswapPool,
 } from "../helpers/pool"
-import { fetchVestingPeriod } from "../helpers/rewardEscrow"
-import { fetchRewardEscrow, fetchRewardFee } from "../helpers/terminal"
+import { fetchRewardFee } from "../helpers/terminal"
 import { Pool, Reward, RewardInitiation, Terminal, Token, Uniswap, User } from "../types/schema"
 import { Pool as PoolTemplate, UniswapV3Pool } from "../types/templates"
 import { 
   DeployedIncentivizedPool,
-  DeployedUniV3Pool,
-  EthFeeWithdraw,
-  TokenFeeWithdraw,
+  DeployedNonIncentivizedPool,
   InitiatedRewardsProgram
 } from "../types/Terminal/Terminal"
 
@@ -165,6 +161,7 @@ export function handleDeployedIncentivizedPool(event: DeployedIncentivizedPool):
     pool.vestingPeriod = ZERO_BI;
   }
   pool.createdAt = event.block.timestamp
+  pool.isReward = true;
   
   UniswapV3Pool.create(uniswapPoolAddress)
   PoolTemplate.create(poolAddress)
@@ -173,6 +170,111 @@ export function handleDeployedIncentivizedPool(event: DeployedIncentivizedPool):
   token0.save()
   token1.save()
   stakedToken.save()
+  pool.save()
+  terminal.save()
+}
+
+export function handleDeployedNonIncentivizedPool(event: DeployedNonIncentivizedPool): void {
+  let terminal = Terminal.load(event.address.toHexString())
+  if (!terminal) {
+    terminal = new Terminal(event.address.toHexString())
+    terminal.poolCount = 0
+  }
+
+  terminal.poolCount = terminal.poolCount + 1
+
+  let params = event.params
+
+  let token0 = Token.load(params.token0.toHexString())
+
+  if (token0 === null) {
+    token0 = new Token(params.token0.toHexString())
+    token0.symbol = fetchTokenSymbol(params.token0)
+    token0.name = fetchTokenName(params.token0)
+    let decimals = fetchTokenDecimals(params.token0)
+
+    if (decimals === MINUS_ONE_BI) {
+      log.debug("Terminal: decimals on token 0 was null", [])
+      return
+    }
+
+    token0.decimals = decimals
+  }
+
+  let token1 = Token.load(params.token1.toHexString())
+
+  if (token1 === null) {
+    token1 = new Token(params.token1.toHexString())
+    token1.symbol = fetchTokenSymbol(params.token1)
+    token1.name = fetchTokenName(params.token1)
+    let decimals = fetchTokenDecimals(params.token1)
+
+    if (decimals === MINUS_ONE_BI) {
+      log.debug("Terminal: decimals on token 1 was null", [])
+      return
+    }
+
+    token1.decimals = decimals
+  }
+
+  let poolAddress = params.poolInstance
+  let pool = Pool.load(poolAddress.toHexString());
+  if (!pool) {
+    pool = new Pool(poolAddress.toHexString())
+    pool.save()
+  }
+  pool.token0 = token0.id
+  pool.token1 = token1.id
+  pool.lowerTick = params.lowerTick
+  pool.upperTick = params.upperTick
+  pool.manager = ADDRESS_ZERO
+
+  let ownerAddress = fetchOwner(poolAddress)
+  let owner = User.load(ownerAddress.toHexString())
+  if (!owner) {
+    owner = new User(ownerAddress.toHexString())
+  }
+  pool.owner = owner.id
+  pool.stakedToken = null
+
+  pool.ticks = fetchTicks(poolAddress)
+  
+  // no reward parameters for these pools
+  pool.rewardTokens = []
+  pool.rewardAmounts = []
+  pool.rewardDuration = BigInt.fromI32(0)
+  pool.rewardsAreEscrowed = false
+  if (pool.uniswapPool) {
+    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool))
+  }
+
+  pool.tokenId = fetchTokenId(poolAddress)
+  pool.tradeFee = fetchTradeFee(poolAddress)
+  pool.poolFee = fetchPoolFee(poolAddress)
+
+  let uniswapPoolAddress = fetchUniswapPool(poolAddress)
+  let uniswapPool = Uniswap.load(uniswapPoolAddress.toHexString())
+  if (!uniswapPool) {
+    uniswapPool = new Uniswap(uniswapPoolAddress.toHexString())
+  }
+  uniswapPool.pool = pool.id
+  uniswapPool.save()
+
+  pool.uniswapPool = uniswapPool.id
+
+  // no vesting period and reward end date
+  pool.periodFinish = ZERO_BI
+  pool.vestingPeriod = ZERO_BI;
+
+  pool.createdAt = event.block.timestamp
+  pool.isReward = false;
+  
+  UniswapV3Pool.create(uniswapPoolAddress)
+  PoolTemplate.create(poolAddress)
+
+  owner.save()
+  token0.save()
+  token1.save()
   pool.save()
   terminal.save()
 }

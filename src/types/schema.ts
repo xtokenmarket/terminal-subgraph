@@ -525,6 +525,15 @@ export class Pool extends Entity {
     }
   }
 
+  get isReward(): boolean {
+    let value = this.get("isReward");
+    return value.toBoolean();
+  }
+
+  set isReward(value: boolean) {
+    this.set("isReward", Value.fromBoolean(value));
+  }
+
   get deposits(): Array<string> | null {
     let value = this.get("deposits");
     if (value === null || value.kind == ValueKind.NULL) {

@@ -48,6 +48,8 @@ type Pool @entity {
 
   createdAt: BigInt
 
+  isReward: Boolean
+
   deposits: [Deposit!] @derivedFrom(field: "pool")
   withdrawals: [Withdrawal!] @derivedFrom(field: "pool")
   claimedRewards: [RewardClaim!] @derivedFrom(field: "pool")
