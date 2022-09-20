@@ -37,6 +37,8 @@ dataSources:
         #   handler: handleDeployedUniV3Pool
         - event: DeployedIncentivizedPool(indexed address,indexed address,indexed address,uint24,int24,int24)
           handler: handleDeployedIncentivizedPool
+        - event: DeployedNonIncentivizedPool(indexed address,indexed address,indexed address,uint24,int24,int24)
+          handler: handleDeployedNonIncentivizedPool
         - event: InitiatedRewardsProgram(indexed address,address[],uint256[],uint256)
           handler: handleInitiatedRewardsProgram
         # - event: TokenFeeWithdraw(indexed address,uint256)
