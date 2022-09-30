@@ -1,7 +1,0 @@
-{
-  "network": "kovan",
-  "address": "0xe101f34b475C01Ac9975686ab6b69e6163938788",
-  "startBlock": 31890681,
-  "rewardEscrowAddress": "0x8DD9e1f5FD3c97Bf78Dd8998C2aC352747CF39a1",
-  "rewardEscrowStartBlock": 31890670
-}
