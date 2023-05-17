@@ -294,7 +294,9 @@ export function handleInitiatedRewardsProgram(event: InitiatedRewardsProgram): v
     pool = new Pool(params.clrInstance.toHexString())
   }
 
-  let rewardTokens = event.params.rewardTokens
+  poolAddressGb = params.clrInstance
+  rewardsDuration = params.rewardsDuration
+  let rewardTokens = fetchRewardTokens(poolAddressGb);
 
   rewardTokens.forEach(id => {
     let token = Token.load(id.toHexString())
@@ -316,8 +318,6 @@ export function handleInitiatedRewardsProgram(event: InitiatedRewardsProgram): v
 
   rewardFee = fetchRewardFee(event.address)
 
-  poolAddressGb = params.clrInstance
-  rewardsDuration = params.rewardsDuration
 
   pool.rewardTokens = rewardTokens.map<string>(token => {
     return token.toHexString()
