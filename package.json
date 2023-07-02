@@ -21,8 +21,8 @@
   },
   "author": "Alan Zhou",
   "dependencies": {
-    "@graphprotocol/graph-cli": "0.51.2",
-    "@graphprotocol/graph-ts": "0.31.0",
+    "@graphprotocol/graph-cli": "0.21.0",
+    "@graphprotocol/graph-ts": "0.24.0",
     "mustache": "^4.2.0"
   }
 }
