@@ -226,6 +226,18 @@ export class Terminal__uniContractsResult {
     map.set("value2", ethereum.Value.fromAddress(this.value2));
     return map;
   }
+
+  getRouter(): Address {
+    return this.value0;
+  }
+
+  getQuoter(): Address {
+    return this.value1;
+  }
+
+  getPositionManager(): Address {
+    return this.value2;
+  }
 }
 
 export class Terminal extends ethereum.SmartContract {
@@ -631,15 +643,21 @@ export class DeployIncentivizedPoolCall__Inputs {
   }
 
   get ticks(): DeployIncentivizedPoolCallTicksStruct {
-    return this._call.inputValues[1].value.toTuple() as DeployIncentivizedPoolCallTicksStruct;
+    return changetype<DeployIncentivizedPoolCallTicksStruct>(
+      this._call.inputValues[1].value.toTuple()
+    );
   }
 
   get rewardsProgram(): DeployIncentivizedPoolCallRewardsProgramStruct {
-    return this._call.inputValues[2].value.toTuple() as DeployIncentivizedPoolCallRewardsProgramStruct;
+    return changetype<DeployIncentivizedPoolCallRewardsProgramStruct>(
+      this._call.inputValues[2].value.toTuple()
+    );
   }
 
   get pool(): DeployIncentivizedPoolCallPoolStruct {
-    return this._call.inputValues[3].value.toTuple() as DeployIncentivizedPoolCallPoolStruct;
+    return changetype<DeployIncentivizedPoolCallPoolStruct>(
+      this._call.inputValues[3].value.toTuple()
+    );
   }
 }
 
@@ -715,11 +733,15 @@ export class DeployNonIncentivizedPoolCall__Inputs {
   }
 
   get ticks(): DeployNonIncentivizedPoolCallTicksStruct {
-    return this._call.inputValues[1].value.toTuple() as DeployNonIncentivizedPoolCallTicksStruct;
+    return changetype<DeployNonIncentivizedPoolCallTicksStruct>(
+      this._call.inputValues[1].value.toTuple()
+    );
   }
 
   get pool(): DeployNonIncentivizedPoolCallPoolStruct {
-    return this._call.inputValues[2].value.toTuple() as DeployNonIncentivizedPoolCallPoolStruct;
+    return changetype<DeployNonIncentivizedPoolCallPoolStruct>(
+      this._call.inputValues[2].value.toTuple()
+    );
   }
 }
 
@@ -915,7 +937,9 @@ export class InitializeCall__Inputs {
   }
 
   get _uniContracts(): InitializeCall_uniContractsStruct {
-    return this._call.inputValues[6].value.toTuple() as InitializeCall_uniContractsStruct;
+    return changetype<InitializeCall_uniContractsStruct>(
+      this._call.inputValues[6].value.toTuple()
+    );
   }
 
   get _deploymentFee(): BigInt {

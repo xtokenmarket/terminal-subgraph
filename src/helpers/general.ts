@@ -18,7 +18,7 @@ export function fetchTokenSymbol(tokenAddress: Address): string {
   // static definitions overrides
   let staticDefinition = TokenDefinition.fromAddress(tokenAddress)
   if(staticDefinition != null) {
-    return (staticDefinition as TokenDefinition).symbol
+    return staticDefinition.symbol
   }
 
   let contract = ERC20.bind(tokenAddress)

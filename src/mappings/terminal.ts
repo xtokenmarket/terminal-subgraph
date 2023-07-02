@@ -140,7 +140,7 @@ export function handleDeployedIncentivizedPool(event: DeployedIncentivizedPool):
   pool.rewardDuration = BigInt.fromI32(0)
   pool.rewardsAreEscrowed = fetchRewardsAreEscrowed(poolAddress)
   if (pool.uniswapPool) {
-    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool))
+    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!))
   }
 
   pool.tokenId = fetchTokenId(poolAddress)
@@ -245,7 +245,7 @@ export function handleDeployedNonIncentivizedPool(event: DeployedNonIncentivized
   pool.rewardDuration = BigInt.fromI32(0)
   pool.rewardsAreEscrowed = false
   if (pool.uniswapPool) {
-    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool))
+    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!))
   }
 
   pool.tokenId = fetchTokenId(poolAddress)
@@ -350,10 +350,10 @@ export function handleInitiatedRewardsProgram(event: InitiatedRewardsProgram): v
   pool.bufferTokenBalance = fetchBufferTokenBalance(params.clrInstance)
   pool.stakedTokenBalance = fetchStakedTokenBalance(params.clrInstance)
   if (pool.uniswapPool) {
-    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool))
+    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!))
   }
   
-  pool.rewardAmountsPerWeek = pool.rewardAmounts.map<BigInt>((amount) => {
+  pool.rewardAmountsPerWeek = !pool.rewardAmounts ? [] : pool.rewardAmounts!.map<BigInt>((amount) => {
     let rewardAmountForWeek: BigInt = ZERO_BI
     if (rewardsDuration !== ZERO_BI) {
       rewardAmountForWeek = amount
