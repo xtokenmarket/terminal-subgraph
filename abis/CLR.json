@@ -470,6 +470,30 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "stakedBalance",
+        "type": "uint256"
+      }
+    ],
+    "name": "calculateWithdrawAmounts",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount0",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount1",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "claimReward",
     "outputs": [],
@@ -541,13 +565,13 @@
   {
     "inputs": [
       {
-        "internalType": "uint8",
-        "name": "inputAsset",
-        "type": "uint8"
+        "internalType": "uint256",
+        "name": "amount0",
+        "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "amount",
+        "name": "amount1",
         "type": "uint256"
       }
     ],
@@ -764,6 +788,19 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getVersion",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "version",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "pure",
     "type": "function"
   },
   {
@@ -1490,6 +1527,16 @@
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "minReceivedAmount0",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "minReceivedAmount1",
+        "type": "uint256"
       }
     ],
     "name": "withdraw",
@@ -1502,6 +1549,16 @@
       {
         "internalType": "uint256",
         "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "minReceivedAmount0",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "minReceivedAmount1",
         "type": "uint256"
       }
     ],
