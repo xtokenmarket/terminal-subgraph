@@ -41,6 +41,8 @@ dataSources:
           handler: handleDeployedNonIncentivizedPool
         - event: InitiatedRewardsProgram(indexed address,address[],uint256[],uint256)
           handler: handleInitiatedRewardsProgram
+        - event: DeployedSingleAssetPool(indexed address,indexed address)
+          handler: handleDeployedSingleAssetPool
         # - event: TokenFeeWithdraw(indexed address,uint256)
         #   handler: handleTokenFeeWithdraw
         # - event: EthFeeWithdraw(uint256)

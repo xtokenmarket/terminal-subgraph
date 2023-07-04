@@ -86,6 +86,28 @@ export class DeployedNonIncentivizedPool__Params {
   }
 }
 
+export class DeployedSingleAssetPool extends ethereum.Event {
+  get params(): DeployedSingleAssetPool__Params {
+    return new DeployedSingleAssetPool__Params(this);
+  }
+}
+
+export class DeployedSingleAssetPool__Params {
+  _event: DeployedSingleAssetPool;
+
+  constructor(event: DeployedSingleAssetPool) {
+    this._event = event;
+  }
+
+  get poolInstance(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get stakingToken(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+}
+
 export class DeployedUniV3Pool extends ethereum.Event {
   get params(): DeployedUniV3Pool__Params {
     return new DeployedUniV3Pool__Params(this);
@@ -534,6 +556,29 @@ export class Terminal extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
+  singleAssetPoolDeployer(): Address {
+    let result = super.call(
+      "singleAssetPoolDeployer",
+      "singleAssetPoolDeployer():(address)",
+      []
+    );
+
+    return result[0].toAddress();
+  }
+
+  try_singleAssetPoolDeployer(): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "singleAssetPoolDeployer",
+      "singleAssetPoolDeployer():(address)",
+      []
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
   tradeFee(): BigInt {
     let result = super.call("tradeFee", "tradeFee():(uint256)", []);
 
@@ -621,6 +666,32 @@ export class Terminal extends ethereum.SmartContract {
   }
 }
 
+export class ConstructorCall extends ethereum.Call {
+  get inputs(): ConstructorCall__Inputs {
+    return new ConstructorCall__Inputs(this);
+  }
+
+  get outputs(): ConstructorCall__Outputs {
+    return new ConstructorCall__Outputs(this);
+  }
+}
+
+export class ConstructorCall__Inputs {
+  _call: ConstructorCall;
+
+  constructor(call: ConstructorCall) {
+    this._call = call;
+  }
+}
+
+export class ConstructorCall__Outputs {
+  _call: ConstructorCall;
+
+  constructor(call: ConstructorCall) {
+    this._call = call;
+  }
+}
+
 export class DeployIncentivizedPoolCall extends ethereum.Call {
   get inputs(): DeployIncentivizedPoolCall__Inputs {
     return new DeployIncentivizedPoolCall__Inputs(this);
@@ -666,6 +737,10 @@ export class DeployIncentivizedPoolCall__Outputs {
 
   constructor(call: DeployIncentivizedPoolCall) {
     this._call = call;
+  }
+
+  get clrPoolAddress(): Address {
+    return this._call.outputValues[0].value.toAddress();
   }
 }
 
@@ -751,6 +826,10 @@ export class DeployNonIncentivizedPoolCall__Outputs {
   constructor(call: DeployNonIncentivizedPoolCall) {
     this._call = call;
   }
+
+  get nonRewardPoolAddress(): Address {
+    return this._call.outputValues[0].value.toAddress();
+  }
 }
 
 export class DeployNonIncentivizedPoolCallTicksStruct extends ethereum.Tuple {
@@ -782,6 +861,56 @@ export class DeployNonIncentivizedPoolCallPoolStruct extends ethereum.Tuple {
 
   get amount1(): BigInt {
     return this[4].toBigInt();
+  }
+}
+
+export class DeploySingleAssetPoolCall extends ethereum.Call {
+  get inputs(): DeploySingleAssetPoolCall__Inputs {
+    return new DeploySingleAssetPoolCall__Inputs(this);
+  }
+
+  get outputs(): DeploySingleAssetPoolCall__Outputs {
+    return new DeploySingleAssetPoolCall__Outputs(this);
+  }
+}
+
+export class DeploySingleAssetPoolCall__Inputs {
+  _call: DeploySingleAssetPoolCall;
+
+  constructor(call: DeploySingleAssetPoolCall) {
+    this._call = call;
+  }
+
+  get stakingToken(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get rewardsProgram(): DeploySingleAssetPoolCallRewardsProgramStruct {
+    return changetype<DeploySingleAssetPoolCallRewardsProgramStruct>(
+      this._call.inputValues[1].value.toTuple()
+    );
+  }
+}
+
+export class DeploySingleAssetPoolCall__Outputs {
+  _call: DeploySingleAssetPoolCall;
+
+  constructor(call: DeploySingleAssetPoolCall) {
+    this._call = call;
+  }
+
+  get pool(): Address {
+    return this._call.outputValues[0].value.toAddress();
+  }
+}
+
+export class DeploySingleAssetPoolCallRewardsProgramStruct extends ethereum.Tuple {
+  get rewardTokens(): Array<Address> {
+    return this[0].toAddressArray();
+  }
+
+  get vestingPeriod(): BigInt {
+    return this[1].toBigInt();
   }
 }
 
@@ -932,26 +1061,30 @@ export class InitializeCall__Inputs {
     return this._call.inputValues[4].value.toAddress();
   }
 
-  get _uniswapFactory(): Address {
+  get _singleAssetPoolDeployer(): Address {
     return this._call.inputValues[5].value.toAddress();
+  }
+
+  get _uniswapFactory(): Address {
+    return this._call.inputValues[6].value.toAddress();
   }
 
   get _uniContracts(): InitializeCall_uniContractsStruct {
     return changetype<InitializeCall_uniContractsStruct>(
-      this._call.inputValues[6].value.toTuple()
+      this._call.inputValues[7].value.toTuple()
     );
   }
 
   get _deploymentFee(): BigInt {
-    return this._call.inputValues[7].value.toBigInt();
-  }
-
-  get _rewardFee(): BigInt {
     return this._call.inputValues[8].value.toBigInt();
   }
 
-  get _tradeFee(): BigInt {
+  get _rewardFee(): BigInt {
     return this._call.inputValues[9].value.toBigInt();
+  }
+
+  get _tradeFee(): BigInt {
+    return this._call.inputValues[10].value.toBigInt();
   }
 }
 
@@ -994,7 +1127,7 @@ export class InitiateNewRewardsProgramCall__Inputs {
     this._call = call;
   }
 
-  get clrPool(): Address {
+  get rewardPool(): Address {
     return this._call.inputValues[0].value.toAddress();
   }
 
@@ -1032,7 +1165,7 @@ export class InitiateRewardsProgramCall__Inputs {
     this._call = call;
   }
 
-  get clrPool(): Address {
+  get rewardPool(): Address {
     return this._call.inputValues[0].value.toAddress();
   }
 
@@ -1135,6 +1268,36 @@ export class SetNonRewardPoolDeployerCall__Outputs {
   _call: SetNonRewardPoolDeployerCall;
 
   constructor(call: SetNonRewardPoolDeployerCall) {
+    this._call = call;
+  }
+}
+
+export class SetSingleAssetPoolDeployerCall extends ethereum.Call {
+  get inputs(): SetSingleAssetPoolDeployerCall__Inputs {
+    return new SetSingleAssetPoolDeployerCall__Inputs(this);
+  }
+
+  get outputs(): SetSingleAssetPoolDeployerCall__Outputs {
+    return new SetSingleAssetPoolDeployerCall__Outputs(this);
+  }
+}
+
+export class SetSingleAssetPoolDeployerCall__Inputs {
+  _call: SetSingleAssetPoolDeployerCall;
+
+  constructor(call: SetSingleAssetPoolDeployerCall) {
+    this._call = call;
+  }
+
+  get newDeployer(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class SetSingleAssetPoolDeployerCall__Outputs {
+  _call: SetSingleAssetPoolDeployerCall;
+
+  constructor(call: SetSingleAssetPoolDeployerCall) {
     this._call = call;
   }
 }

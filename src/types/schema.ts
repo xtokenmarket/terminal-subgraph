@@ -536,6 +536,15 @@ export class Pool extends Entity {
     this.set("isReward", Value.fromBoolean(value));
   }
 
+  get isSingleAssetPool(): boolean {
+    let value = this.get("isSingleAssetPool");
+    return value!.toBoolean();
+  }
+
+  set isSingleAssetPool(value: boolean) {
+    this.set("isSingleAssetPool", Value.fromBoolean(value));
+  }
+
   get deposits(): Array<string> | null {
     let value = this.get("deposits");
     if (!value || value.kind == ValueKind.NULL) {

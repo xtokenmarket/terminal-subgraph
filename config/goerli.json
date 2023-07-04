@@ -1,7 +1,7 @@
 {
   "network": "goerli",
   "address": "0x2e81b8d3B9bd9DF52d04861da1633d8F93b7B7a6",
-  "startBlock": 9209344,
+  "startBlock": 9209343,
   "rewardEscrowAddress": "0xab979eD5A5B4d6CCDAB8536b275Fc12cb52Be4a4",
   "rewardEscrowStartBlock": 9209333
 }

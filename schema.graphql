@@ -33,7 +33,7 @@ type Pool @entity {
   rewardsAreEscrowed: Boolean
   rewardDuration: BigInt
 
-  tokenId: BigInt    # Uniswap LP Position
+  tokenId: BigInt # Uniswap LP Position
   poolFee: Int
   tradeFee: BigInt
   uniswapPool: Uniswap
@@ -49,6 +49,7 @@ type Pool @entity {
   createdAt: BigInt
 
   isReward: Boolean
+  isSingleAssetPool: Boolean
 
   deposits: [Deposit!] @derivedFrom(field: "pool")
   withdrawals: [Withdrawal!] @derivedFrom(field: "pool")
