@@ -18,10 +18,12 @@ import {
   fetchTokenDecimals,
   fetchTokenName,
   fetchTokenSymbol,
-  MINUS_ONE_BI
+  MINUS_ONE_BI,
+  ZERO_BI
 } from "../helpers/general";
-import { log, Address } from "@graphprotocol/graph-ts";
+import { log, Address, BigInt } from "@graphprotocol/graph-ts";
 import { calculatePoolPriceWithDecimals, fetchBufferTokenBalance, fetchPeriodFinish, fetchPoolPriceWithDecimals, fetchStakedTokenBalance } from "../helpers/pool";
+import { ERC20 } from "../types/Terminal/ERC20";
 
 export function handleManagerSet(event: ManagerSet): void {
   let pool = Pool.load(event.address.toHexString())
@@ -232,14 +234,21 @@ export function handleRewardAdded(event: RewardAdded): void {
 }
 
 export function handleStaked(event: Staked): void {
-  let pool = Pool.load(event.address.toHexString())
+  let pool = Pool.load(event.address.toHexString());
   if (!pool) {
-    pool = new Pool(event.address.toHexString())
+    pool = new Pool(event.address.toHexString());
   }
 
-  pool.bufferTokenBalance = fetchBufferTokenBalance(event.address)
-  pool.stakedTokenBalance = fetchStakedTokenBalance(event.address)
-  pool.save()
+  if (pool.isSingleAssetPool && pool.stakedToken) {    
+    let currentStakedStokenBalance: BigInt = pool.stakedTokenBalance ? pool.stakedTokenBalance![0] : ZERO_BI
+    pool.stakedTokenBalance = [currentStakedStokenBalance.plus(event.params.amount), ZERO_BI];
+    pool.bufferTokenBalance = [ZERO_BI, ZERO_BI];
+  } else {
+    pool.bufferTokenBalance = fetchBufferTokenBalance(event.address);
+    pool.stakedTokenBalance = fetchStakedTokenBalance(event.address);
+  }
+  
+  pool.save();
 }
 
 export function handleWithdrawn(event: Withdrawn): void {
@@ -248,11 +257,20 @@ export function handleWithdrawn(event: Withdrawn): void {
     pool = new Pool(event.address.toHexString())
   }
 
-  pool.bufferTokenBalance = fetchBufferTokenBalance(event.address)
-  pool.stakedTokenBalance = fetchStakedTokenBalance(event.address)
-  if (pool.uniswapPool) {
-    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!))
+  if (pool.isSingleAssetPool && pool.stakedToken) {
+    let tokenContract = ERC20.bind(Address.fromString(pool.stakedToken!));
+    let stakedTokenBalanceResult = tokenContract.try_balanceOf(Address.fromString(pool.id));
+    
+    pool.bufferTokenBalance = [ZERO_BI, ZERO_BI];
+    pool.stakedTokenBalance = !stakedTokenBalanceResult.reverted ? [stakedTokenBalanceResult.value, ZERO_BI] : [ZERO_BI, ZERO_BI]
+  } else {
+    pool.bufferTokenBalance = fetchBufferTokenBalance(event.address)
+    pool.stakedTokenBalance = fetchStakedTokenBalance(event.address)
+    if (pool.uniswapPool) {
+      pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!))
+    }
   }
+
   pool.save()
 }
 

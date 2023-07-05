@@ -94,6 +94,8 @@ templates:
           file: ./abis/CLR.json
         - name: UniswapLibrary
           file: ./abis/UniswapLibrary.json
+        - name: ERC20
+          file: ./abis/ERC20.json
       eventHandlers:
         - event: FeeCollected(uint256,uint256)
           handler: handleFeeCollected
