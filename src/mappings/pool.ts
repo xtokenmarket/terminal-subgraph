@@ -25,6 +25,21 @@ import { log, Address, BigInt } from "@graphprotocol/graph-ts";
 import { calculatePoolPriceWithDecimals, fetchBufferTokenBalance, fetchPeriodFinish, fetchPoolPriceWithDecimals, fetchStakedTokenBalance } from "../helpers/pool";
 import { ERC20 } from "../types/Terminal/ERC20";
 
+function getPoolStakedTokenBalance(pool: Pool): BigInt[] {
+  if (pool.isSingleAssetPool && pool.stakedToken) {
+    let tokenContract = ERC20.bind(Address.fromString(pool.stakedToken!));
+    let stakedTokenBalanceResult = tokenContract.try_balanceOf(Address.fromString(pool.id));
+    
+    return !stakedTokenBalanceResult.reverted ? [stakedTokenBalanceResult.value, ZERO_BI] : [ZERO_BI, ZERO_BI]
+  } 
+  
+  return fetchStakedTokenBalance(Address.fromString(pool.id))
+}
+
+function getPoolBufferTokenBalance(pool: Pool): BigInt[] {
+  return pool.isSingleAssetPool && pool.stakedToken ?  [ZERO_BI, ZERO_BI] : fetchBufferTokenBalance(Address.fromString(pool.id));
+}
+
 export function handleManagerSet(event: ManagerSet): void {
   let pool = Pool.load(event.address.toHexString())
 
@@ -71,8 +86,8 @@ export function handleDeposit(event: DepositEvent): void {
   deposit.amount1 = params.amount1
   deposit.timestamp = event.block.timestamp
 
-  pool.bufferTokenBalance = fetchBufferTokenBalance(event.address)
-  pool.stakedTokenBalance = fetchStakedTokenBalance(event.address)
+  pool.bufferTokenBalance = getPoolBufferTokenBalance(pool)
+  pool.stakedTokenBalance = getPoolStakedTokenBalance(pool)
   if (pool.uniswapPool) {
     pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!))
   }
@@ -98,8 +113,8 @@ export function handleFeeCollected(event: FeeCollected): void {
   collect.pool = pool.id
   collect.timestamp = event.block.timestamp
 
-  pool.bufferTokenBalance = fetchBufferTokenBalance(event.address)
-  pool.stakedTokenBalance = fetchStakedTokenBalance(event.address)
+  pool.bufferTokenBalance = getPoolBufferTokenBalance(pool)
+  pool.stakedTokenBalance = getPoolStakedTokenBalance(pool)
   if (pool.uniswapPool) {
     pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!))
   }
@@ -135,8 +150,8 @@ export function handleWithdraw(event: WithdrawEvent): void {
   withdrawal.amount1 = params.amount1
   withdrawal.timestamp = event.block.timestamp
 
-  pool.bufferTokenBalance = fetchBufferTokenBalance(event.address)
-  pool.stakedTokenBalance = fetchStakedTokenBalance(event.address)
+  pool.bufferTokenBalance = getPoolBufferTokenBalance(pool)
+  pool.stakedTokenBalance = getPoolStakedTokenBalance(pool)
   if (pool.uniswapPool) {
     pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!))
   }
@@ -207,8 +222,8 @@ export function handleRewardClaimed(event: RewardClaimed): void {
   rewardClaim.token = token.id
   rewardClaim.timestamp = event.block.timestamp
 
-  pool.bufferTokenBalance = fetchBufferTokenBalance(event.address)
-  pool.stakedTokenBalance = fetchStakedTokenBalance(event.address)
+  pool.bufferTokenBalance = getPoolBufferTokenBalance(pool)
+  pool.stakedTokenBalance = getPoolStakedTokenBalance(pool)
   if (pool.uniswapPool) {
     pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!))
   }
@@ -224,8 +239,8 @@ export function handleRewardAdded(event: RewardAdded): void {
   }
 
   pool.periodFinish = fetchPeriodFinish(event.address)
-  pool.bufferTokenBalance = fetchBufferTokenBalance(event.address)
-  pool.stakedTokenBalance = fetchStakedTokenBalance(event.address)
+  pool.bufferTokenBalance = getPoolBufferTokenBalance(pool)
+  pool.stakedTokenBalance = getPoolStakedTokenBalance(pool)
   if (pool.uniswapPool) {
     pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!))
   }
@@ -239,15 +254,9 @@ export function handleStaked(event: Staked): void {
     pool = new Pool(event.address.toHexString());
   }
 
-  if (pool.isSingleAssetPool && pool.stakedToken) {    
-    let currentStakedStokenBalance: BigInt = pool.stakedTokenBalance ? pool.stakedTokenBalance![0] : ZERO_BI
-    pool.stakedTokenBalance = [currentStakedStokenBalance.plus(event.params.amount), ZERO_BI];
-    pool.bufferTokenBalance = [ZERO_BI, ZERO_BI];
-  } else {
-    pool.bufferTokenBalance = fetchBufferTokenBalance(event.address);
-    pool.stakedTokenBalance = fetchStakedTokenBalance(event.address);
-  }
-  
+  pool.bufferTokenBalance = getPoolBufferTokenBalance(pool)
+  pool.stakedTokenBalance = getPoolStakedTokenBalance(pool)
+
   pool.save();
 }
 
@@ -257,18 +266,10 @@ export function handleWithdrawn(event: Withdrawn): void {
     pool = new Pool(event.address.toHexString())
   }
 
-  if (pool.isSingleAssetPool && pool.stakedToken) {
-    let tokenContract = ERC20.bind(Address.fromString(pool.stakedToken!));
-    let stakedTokenBalanceResult = tokenContract.try_balanceOf(Address.fromString(pool.id));
-    
-    pool.bufferTokenBalance = [ZERO_BI, ZERO_BI];
-    pool.stakedTokenBalance = !stakedTokenBalanceResult.reverted ? [stakedTokenBalanceResult.value, ZERO_BI] : [ZERO_BI, ZERO_BI]
-  } else {
-    pool.bufferTokenBalance = fetchBufferTokenBalance(event.address)
-    pool.stakedTokenBalance = fetchStakedTokenBalance(event.address)
-    if (pool.uniswapPool) {
-      pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!))
-    }
+  pool.stakedTokenBalance = getPoolStakedTokenBalance(pool);
+  pool.bufferTokenBalance = getPoolBufferTokenBalance(pool);
+  if (pool.uniswapPool) {
+    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!))
   }
 
   pool.save()
@@ -288,8 +289,8 @@ export function handleReinvest(event: ReinvestEvent): void {
   reinvest.pool = pool.id
   reinvest.timestamp = event.block.timestamp
 
-  pool.bufferTokenBalance = fetchBufferTokenBalance(event.address)
-  pool.stakedTokenBalance = fetchStakedTokenBalance(event.address)
+  pool.bufferTokenBalance = getPoolBufferTokenBalance(pool)
+  pool.stakedTokenBalance = getPoolStakedTokenBalance(pool)
   if (pool.uniswapPool) {
     pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!))
   }
@@ -304,8 +305,8 @@ export function handleRewardsDurationUpdated(event: RewardsDurationUpdated): voi
     pool = new Pool(event.address.toHexString())
   }
 
-  pool.bufferTokenBalance = fetchBufferTokenBalance(event.address)
-  pool.stakedTokenBalance = fetchStakedTokenBalance(event.address)
+  pool.bufferTokenBalance = getPoolBufferTokenBalance(pool)
+  pool.stakedTokenBalance = getPoolStakedTokenBalance(pool)
   if (pool.uniswapPool) {
     pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!))
   }
@@ -318,8 +319,8 @@ export function handleTransfer(event: Transfer): void {
     pool = new Pool(event.address.toHexString())
   }
 
-  pool.bufferTokenBalance = fetchBufferTokenBalance(event.address)
-  pool.stakedTokenBalance = fetchStakedTokenBalance(event.address)
+  pool.bufferTokenBalance = getPoolBufferTokenBalance(pool)
+  pool.stakedTokenBalance = getPoolStakedTokenBalance(pool)
   if (pool.uniswapPool) {
     pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!))
   }
