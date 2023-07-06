@@ -2,7 +2,6 @@ import { Address, BigInt, log } from "@graphprotocol/graph-ts";
 import { ADDRESS_ZERO, fetchTokenDecimals, fetchTokenName, fetchTokenSymbol, ZERO_BI, MINUS_ONE_BI } from "../helpers/general";
 import {
   calculatePoolPriceWithDecimals,
-  fetchBufferTokenBalance,
   fetchOwner,
   fetchPeriodFinish,
   fetchPoolFee,
@@ -10,11 +9,12 @@ import {
   fetchRewardsAreEscrowed,
   fetchRewardTokens,
   fetchStakedToken,
-  fetchStakedTokenBalance,
   fetchTicks,
   fetchTokenId,
   fetchTradeFee,
   fetchUniswapPool,
+  getPoolBufferTokenBalance,
+  getPoolStakedTokenBalance,
 } from "../helpers/pool";
 import { fetchRewardFee } from "../helpers/terminal";
 import { Pool, Reward, RewardInitiation, Terminal, Token, Uniswap, User } from "../types/schema";
@@ -427,8 +427,8 @@ export function handleInitiatedRewardsProgram(event: InitiatedRewardsProgram): v
     return fetchRewardInfo(poolAddressGb, token);
   });
   pool.rewardDuration = params.rewardsDuration;
-  pool.bufferTokenBalance = fetchBufferTokenBalance(params.clrInstance);
-  pool.stakedTokenBalance = fetchStakedTokenBalance(params.clrInstance);
+  pool.bufferTokenBalance = getPoolBufferTokenBalance(pool)
+  pool.stakedTokenBalance = getPoolStakedTokenBalance(pool)
   if (pool.uniswapPool) {
     pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!));
   }

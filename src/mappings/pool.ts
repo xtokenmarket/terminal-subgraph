@@ -19,26 +19,9 @@ import {
   fetchTokenName,
   fetchTokenSymbol,
   MINUS_ONE_BI,
-  ZERO_BI
 } from "../helpers/general";
-import { log, Address, BigInt } from "@graphprotocol/graph-ts";
-import { calculatePoolPriceWithDecimals, fetchBufferTokenBalance, fetchPeriodFinish, fetchPoolPriceWithDecimals, fetchStakedTokenBalance } from "../helpers/pool";
-import { ERC20 } from "../types/Terminal/ERC20";
-
-function getPoolStakedTokenBalance(pool: Pool): BigInt[] {
-  if (pool.isSingleAssetPool && pool.stakedToken) {
-    let tokenContract = ERC20.bind(Address.fromString(pool.stakedToken!));
-    let stakedTokenBalanceResult = tokenContract.try_balanceOf(Address.fromString(pool.id));
-    
-    return !stakedTokenBalanceResult.reverted ? [stakedTokenBalanceResult.value, ZERO_BI] : [ZERO_BI, ZERO_BI]
-  } 
-  
-  return fetchStakedTokenBalance(Address.fromString(pool.id))
-}
-
-function getPoolBufferTokenBalance(pool: Pool): BigInt[] {
-  return pool.isSingleAssetPool && pool.stakedToken ?  [ZERO_BI, ZERO_BI] : fetchBufferTokenBalance(Address.fromString(pool.id));
-}
+import { log, Address } from "@graphprotocol/graph-ts";
+import { calculatePoolPriceWithDecimals, fetchPeriodFinish, getPoolBufferTokenBalance, getPoolStakedTokenBalance} from "../helpers/pool";
 
 export function handleManagerSet(event: ManagerSet): void {
   let pool = Pool.load(event.address.toHexString())

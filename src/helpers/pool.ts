@@ -1,7 +1,24 @@
 import { Address, BigInt } from "@graphprotocol/graph-ts";
 import { UniswapLibrary } from "../types/templates/Pool/UniswapLibrary";
+import { Pool as PoolEntity } from "../types/schema"
 import { Pool } from "../types/Terminal/Pool";
 import { ADDRESS_ZERO, UNISWAP_LIBRARY_ADDRESS, ZERO_BI } from "./general";
+import { ERC20 } from "../types/Terminal/ERC20";
+
+export function getPoolStakedTokenBalance(pool: PoolEntity): BigInt[] {
+  if (pool.isSingleAssetPool && pool.stakedToken) {
+    let tokenContract = ERC20.bind(Address.fromString(pool.stakedToken!));
+    let stakedTokenBalanceResult = tokenContract.try_balanceOf(Address.fromString(pool.id));
+    
+    return !stakedTokenBalanceResult.reverted ? [stakedTokenBalanceResult.value, ZERO_BI] : [ZERO_BI, ZERO_BI]
+  } 
+  
+  return fetchStakedTokenBalance(Address.fromString(pool.id))
+}
+
+export function getPoolBufferTokenBalance(pool: PoolEntity): BigInt[] {
+  return pool.isSingleAssetPool && pool.stakedToken ?  [ZERO_BI, ZERO_BI] : fetchBufferTokenBalance(Address.fromString(pool.id));
+}
 
 export function fetchStakedToken(poolAddress: Address): Address {
   let contract = Pool.bind(poolAddress);
