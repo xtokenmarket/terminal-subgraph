@@ -284,8 +284,7 @@ export function handleDeployedSingleAssetPool(event: DeployedSingleAssetPool): v
     pool = new Pool(poolAddress.toHexString());
     pool.save();
   }
-  pool.token0 = null;
-  pool.token1 = null;
+
   pool.lowerTick = 0;
   pool.upperTick = 0;
   pool.manager = ADDRESS_ZERO;
@@ -312,6 +311,8 @@ export function handleDeployedSingleAssetPool(event: DeployedSingleAssetPool): v
     stakedToken.decimals = decimals;
   }
   pool.stakedToken = stakedToken.id;
+  pool.token0 = stakedToken.id;
+  pool.token1 = null;
 
   pool.ticks = [];
 
@@ -427,8 +428,8 @@ export function handleInitiatedRewardsProgram(event: InitiatedRewardsProgram): v
     return fetchRewardInfo(poolAddressGb, token);
   });
   pool.rewardDuration = params.rewardsDuration;
-  pool.bufferTokenBalance = getPoolBufferTokenBalance(pool)
-  pool.stakedTokenBalance = getPoolStakedTokenBalance(pool)
+  pool.bufferTokenBalance = getPoolBufferTokenBalance(pool);
+  pool.stakedTokenBalance = getPoolStakedTokenBalance(pool);
   if (pool.uniswapPool) {
     pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!));
   }
