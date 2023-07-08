@@ -1,4 +1,4 @@
-import { Collect, Pool, Reinvest, Token, User } from "../types/schema"
+import { Collect, Pool, Reinvest, StakeDeposit, StakeWithdrawal, Token, User } from "../types/schema"
 import { 
   Deposit as DepositEvent,
   FeeCollected,
@@ -231,31 +231,68 @@ export function handleRewardAdded(event: RewardAdded): void {
   pool.save()
 }
 
+
 export function handleStaked(event: Staked): void {
+  let stakeDeposit = StakeDeposit.load(event.transaction.hash.toHexString());
+  if (!stakeDeposit) {
+    stakeDeposit = new StakeDeposit(event.transaction.hash.toHexString());
+  }
+
+  let params = event.params;
+  let user = User.load(params.user.toHexString());
+  if (!user) {
+    user = new User(params.user.toHexString());
+    user.save();
+  }
+  stakeDeposit.user = user.id;
+
+  // Get the pool info using the interacted contract address
   let pool = Pool.load(event.address.toHexString());
   if (!pool) {
     pool = new Pool(event.address.toHexString());
   }
+  stakeDeposit.pool = pool.id;
+  stakeDeposit.amount = params.amount;
+  stakeDeposit.timestamp = event.block.timestamp;
 
-  pool.bufferTokenBalance = getPoolBufferTokenBalance(pool)
-  pool.stakedTokenBalance = getPoolStakedTokenBalance(pool)
+  pool.bufferTokenBalance = getPoolBufferTokenBalance(pool);
+  pool.stakedTokenBalance = getPoolStakedTokenBalance(pool);
 
+  stakeDeposit.save();
   pool.save();
 }
 
 export function handleWithdrawn(event: Withdrawn): void {
-  let pool = Pool.load(event.address.toHexString())
-  if (!pool) {
-    pool = new Pool(event.address.toHexString())
+  let stakeWithdrawal = StakeWithdrawal.load(event.transaction.hash.toHexString());
+  if (!stakeWithdrawal) {
+    stakeWithdrawal = new StakeWithdrawal(event.transaction.hash.toHexString());
   }
+
+  let params = event.params;
+  let user = User.load(params.user.toHexString());
+  if (!user) {
+    user = new User(params.user.toHexString());
+    user.save();
+  }
+  stakeWithdrawal.user = user.id;
+
+  // Get the pool info using the interacted contract address
+  let pool = Pool.load(event.address.toHexString());
+  if (!pool) {
+    pool = new Pool(event.address.toHexString());
+  }
+  stakeWithdrawal.pool = pool.id;
+  stakeWithdrawal.amount = params.amount;
+  stakeWithdrawal.timestamp = event.block.timestamp;
 
   pool.stakedTokenBalance = getPoolStakedTokenBalance(pool);
   pool.bufferTokenBalance = getPoolBufferTokenBalance(pool);
   if (pool.uniswapPool) {
-    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!))
+    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!));
   }
 
-  pool.save()
+  stakeWithdrawal.save();
+  pool.save();
 }
 
 export function handleReinvest(event: ReinvestEvent): void {

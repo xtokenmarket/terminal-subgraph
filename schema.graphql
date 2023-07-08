@@ -93,6 +93,28 @@ type Withdrawal @entity {
   timestamp: BigInt!
 }
 
+type StakeDeposit @entity {
+  # Stake tx hash
+  id: ID!
+
+  user: User!
+  pool: Pool!
+  amount: BigInt!
+
+  timestamp: BigInt!
+}
+
+type StakeWithdrawal @entity {
+  # Withdraw tx hash
+  id: ID!
+
+  user: User!
+  pool: Pool!
+  amount: BigInt!
+
+  timestamp: BigInt!
+}
+
 type RewardClaim @entity {
   # Reward claim tx hash
   id: ID!

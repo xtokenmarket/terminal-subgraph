@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: Terminal
-    network: {{network}}
+    network: { { network } }
     source:
-      address: '{{address}}'
+      address: "{{address}}"
       abi: Terminal
-      startBlock: {{startBlock}}
+      startBlock: { { startBlock } }
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -50,11 +50,11 @@ dataSources:
       file: ./src/mappings/terminal.ts
   - kind: ethereum
     name: RewardEscrow
-    network: {{network}}
+    network: { { network } }
     source:
-      address: '{{rewardEscrowAddress}}'
+      address: "{{rewardEscrowAddress}}"
       abi: RewardEscrow
-      startBlock: {{rewardEscrowStartBlock}}
+      startBlock: { { rewardEscrowStartBlock } }
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -75,7 +75,7 @@ dataSources:
 templates:
   - kind: ethereum/contract
     name: Pool
-    network: {{network}}
+    network: { { network } }
     source:
       abi: Pool
     mapping:
@@ -123,7 +123,7 @@ templates:
           handler: handleTransfer
   - kind: ethereum/contract
     name: UniswapV3Pool
-    network: {{network}}
+    network: { { network } }
     source:
       abi: UniswapV3Pool
     mapping:
