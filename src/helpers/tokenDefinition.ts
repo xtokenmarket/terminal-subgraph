@@ -2,6 +2,7 @@ import {
   Address,
   BigInt,
 } from "@graphprotocol/graph-ts"
+import { ADDRESS_ZERO } from "./general"
 
 // Initialize a Token Definition with the attributes
 export class TokenDefinition {
@@ -19,8 +20,17 @@ export class TokenDefinition {
   }
 
   // Get all tokens with a static defintion
-  static getStaticDefinitions(): Array<TokenDefinition> {
+  static getStaticDefinitions(): TokenDefinition[] {
     let staticDefinitions = new Array<TokenDefinition>(6)
+
+    for (let i = 0; i < staticDefinitions.length; ++i) {
+      staticDefinitions[i] = new TokenDefinition(
+        Address.fromString(ADDRESS_ZERO),
+        '',
+        '',
+        BigInt.fromI32(18)
+      )
+    }
 
     // Add DGD
     let tokenDGD = new TokenDefinition(
@@ -29,7 +39,7 @@ export class TokenDefinition {
       'DGD',
       BigInt.fromI32(9)
     )
-    staticDefinitions.push(tokenDGD)
+    staticDefinitions[0] = tokenDGD
 
     // Add AAVE
     let tokenAAVE = new TokenDefinition(
@@ -38,7 +48,7 @@ export class TokenDefinition {
       'Aave Token',
       BigInt.fromI32(18)
     )
-    staticDefinitions.push(tokenAAVE)
+    staticDefinitions[1] = tokenAAVE
 
     // Add LIF
     let tokenLIF = new TokenDefinition(
@@ -47,7 +57,7 @@ export class TokenDefinition {
       'Lif',
       BigInt.fromI32(18)
     )
-    staticDefinitions.push(tokenLIF)
+    staticDefinitions[2] = tokenLIF
 
     // Add SVD
     let tokenSVD = new TokenDefinition(
@@ -56,7 +66,7 @@ export class TokenDefinition {
       'savedroid',
       BigInt.fromI32(18)
     )
-    staticDefinitions.push(tokenSVD)
+    staticDefinitions[3] = tokenSVD
 
     // Add TheDAO
     let tokenTheDAO = new TokenDefinition(
@@ -65,7 +75,7 @@ export class TokenDefinition {
       'TheDAO',
       BigInt.fromI32(16)
     )
-    staticDefinitions.push(tokenTheDAO)
+    staticDefinitions[4] = tokenTheDAO
 
     // Add HPB
     let tokenHPB = new TokenDefinition(
@@ -74,14 +84,14 @@ export class TokenDefinition {
       'HPBCoin',
       BigInt.fromI32(18)
     )
-    staticDefinitions.push(tokenHPB)
+    staticDefinitions[5] = tokenHPB
 
     return staticDefinitions
   }
 
   // Helper for hardcoded tokens
   static fromAddress(tokenAddress: Address) : TokenDefinition | null {
-    let staticDefinitions = this.getStaticDefinitions()
+    let staticDefinitions: TokenDefinition[] = this.getStaticDefinitions()
     let tokenAddressHex = tokenAddress.toHexString()
 
     // Search the definition using the address

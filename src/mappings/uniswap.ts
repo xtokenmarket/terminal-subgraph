@@ -14,12 +14,12 @@ export function handleSwap(event: Swap): void {
   }
 
   if (uniswap.pool) {
-    let pool = Pool.load(uniswap.pool)
+    let pool = Pool.load(uniswap.pool!)
     if (pool) {
-      pool.bufferTokenBalance = fetchBufferTokenBalance(Address.fromString(uniswap.pool))
-      pool.stakedTokenBalance = fetchStakedTokenBalance(Address.fromString(uniswap.pool))
+      pool.bufferTokenBalance = fetchBufferTokenBalance(Address.fromString(uniswap.pool!))
+      pool.stakedTokenBalance = fetchStakedTokenBalance(Address.fromString(uniswap.pool!))
       if (pool.uniswapPool) {
-        pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool))
+        pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!))
       }
       pool.save()
     }
@@ -33,10 +33,10 @@ export function handleBurn(event: Burn): void {
   }
 
   if (uniswap.pool) {
-    let pool = Pool.load(uniswap.pool)
+    let pool = Pool.load(uniswap.pool!)
     if (pool) {
       if (pool.uniswapPool) {
-        pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool))
+        pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!))
         pool.save()
       }
     }
@@ -50,10 +50,10 @@ export function handleCollect(event: Collect): void {
   }
 
   if (uniswap.pool) {
-    let pool = Pool.load(uniswap.pool)
+    let pool = Pool.load(uniswap.pool!)
     if (pool) {
       if (pool.uniswapPool) {
-        pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool))
+        pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!))
         pool.save()
       }
     }

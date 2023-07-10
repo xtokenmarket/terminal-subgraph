@@ -1,4 +1,4 @@
-import { Collect, Pool, Reinvest, Token, User } from "../types/schema"
+import { Collect, Pool, Reinvest, StakeDeposit, StakeWithdrawal, Token, User } from "../types/schema"
 import { 
   Deposit as DepositEvent,
   FeeCollected,
@@ -18,10 +18,10 @@ import {
   fetchTokenDecimals,
   fetchTokenName,
   fetchTokenSymbol,
-  MINUS_ONE_BI
+  MINUS_ONE_BI,
 } from "../helpers/general";
 import { log, Address } from "@graphprotocol/graph-ts";
-import { calculatePoolPriceWithDecimals, fetchBufferTokenBalance, fetchPeriodFinish, fetchPoolPriceWithDecimals, fetchStakedTokenBalance } from "../helpers/pool";
+import { calculatePoolPriceWithDecimals, fetchPeriodFinish, getPoolBufferTokenBalance, getPoolStakedTokenBalance} from "../helpers/pool";
 
 export function handleManagerSet(event: ManagerSet): void {
   let pool = Pool.load(event.address.toHexString())
@@ -69,10 +69,10 @@ export function handleDeposit(event: DepositEvent): void {
   deposit.amount1 = params.amount1
   deposit.timestamp = event.block.timestamp
 
-  pool.bufferTokenBalance = fetchBufferTokenBalance(event.address)
-  pool.stakedTokenBalance = fetchStakedTokenBalance(event.address)
+  pool.bufferTokenBalance = getPoolBufferTokenBalance(pool)
+  pool.stakedTokenBalance = getPoolStakedTokenBalance(pool)
   if (pool.uniswapPool) {
-    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool))
+    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!))
   }
   pool.save()
 
@@ -96,10 +96,10 @@ export function handleFeeCollected(event: FeeCollected): void {
   collect.pool = pool.id
   collect.timestamp = event.block.timestamp
 
-  pool.bufferTokenBalance = fetchBufferTokenBalance(event.address)
-  pool.stakedTokenBalance = fetchStakedTokenBalance(event.address)
+  pool.bufferTokenBalance = getPoolBufferTokenBalance(pool)
+  pool.stakedTokenBalance = getPoolStakedTokenBalance(pool)
   if (pool.uniswapPool) {
-    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool))
+    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!))
   }
 
   pool.save()
@@ -133,10 +133,10 @@ export function handleWithdraw(event: WithdrawEvent): void {
   withdrawal.amount1 = params.amount1
   withdrawal.timestamp = event.block.timestamp
 
-  pool.bufferTokenBalance = fetchBufferTokenBalance(event.address)
-  pool.stakedTokenBalance = fetchStakedTokenBalance(event.address)
+  pool.bufferTokenBalance = getPoolBufferTokenBalance(pool)
+  pool.stakedTokenBalance = getPoolStakedTokenBalance(pool)
   if (pool.uniswapPool) {
-    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool))
+    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!))
   }
   pool.save()
 
@@ -205,10 +205,10 @@ export function handleRewardClaimed(event: RewardClaimed): void {
   rewardClaim.token = token.id
   rewardClaim.timestamp = event.block.timestamp
 
-  pool.bufferTokenBalance = fetchBufferTokenBalance(event.address)
-  pool.stakedTokenBalance = fetchStakedTokenBalance(event.address)
+  pool.bufferTokenBalance = getPoolBufferTokenBalance(pool)
+  pool.stakedTokenBalance = getPoolStakedTokenBalance(pool)
   if (pool.uniswapPool) {
-    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool))
+    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!))
   }
   pool.save()
 
@@ -222,38 +222,77 @@ export function handleRewardAdded(event: RewardAdded): void {
   }
 
   pool.periodFinish = fetchPeriodFinish(event.address)
-  pool.bufferTokenBalance = fetchBufferTokenBalance(event.address)
-  pool.stakedTokenBalance = fetchStakedTokenBalance(event.address)
+  pool.bufferTokenBalance = getPoolBufferTokenBalance(pool)
+  pool.stakedTokenBalance = getPoolStakedTokenBalance(pool)
   if (pool.uniswapPool) {
-    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool))
+    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!))
   }
   
   pool.save()
 }
 
+
 export function handleStaked(event: Staked): void {
-  let pool = Pool.load(event.address.toHexString())
-  if (!pool) {
-    pool = new Pool(event.address.toHexString())
+  let stakeDeposit = StakeDeposit.load(event.transaction.hash.toHexString());
+  if (!stakeDeposit) {
+    stakeDeposit = new StakeDeposit(event.transaction.hash.toHexString());
   }
 
-  pool.bufferTokenBalance = fetchBufferTokenBalance(event.address)
-  pool.stakedTokenBalance = fetchStakedTokenBalance(event.address)
-  pool.save()
+  let params = event.params;
+  let user = User.load(params.user.toHexString());
+  if (!user) {
+    user = new User(params.user.toHexString());
+    user.save();
+  }
+  stakeDeposit.user = user.id;
+
+  // Get the pool info using the interacted contract address
+  let pool = Pool.load(event.address.toHexString());
+  if (!pool) {
+    pool = new Pool(event.address.toHexString());
+  }
+  stakeDeposit.pool = pool.id;
+  stakeDeposit.amount = params.amount;
+  stakeDeposit.timestamp = event.block.timestamp;
+
+  pool.bufferTokenBalance = getPoolBufferTokenBalance(pool);
+  pool.stakedTokenBalance = getPoolStakedTokenBalance(pool);
+
+  stakeDeposit.save();
+  pool.save();
 }
 
 export function handleWithdrawn(event: Withdrawn): void {
-  let pool = Pool.load(event.address.toHexString())
-  if (!pool) {
-    pool = new Pool(event.address.toHexString())
+  let stakeWithdrawal = StakeWithdrawal.load(event.transaction.hash.toHexString());
+  if (!stakeWithdrawal) {
+    stakeWithdrawal = new StakeWithdrawal(event.transaction.hash.toHexString());
   }
 
-  pool.bufferTokenBalance = fetchBufferTokenBalance(event.address)
-  pool.stakedTokenBalance = fetchStakedTokenBalance(event.address)
-  if (pool.uniswapPool) {
-    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool))
+  let params = event.params;
+  let user = User.load(params.user.toHexString());
+  if (!user) {
+    user = new User(params.user.toHexString());
+    user.save();
   }
-  pool.save()
+  stakeWithdrawal.user = user.id;
+
+  // Get the pool info using the interacted contract address
+  let pool = Pool.load(event.address.toHexString());
+  if (!pool) {
+    pool = new Pool(event.address.toHexString());
+  }
+  stakeWithdrawal.pool = pool.id;
+  stakeWithdrawal.amount = params.amount;
+  stakeWithdrawal.timestamp = event.block.timestamp;
+
+  pool.stakedTokenBalance = getPoolStakedTokenBalance(pool);
+  pool.bufferTokenBalance = getPoolBufferTokenBalance(pool);
+  if (pool.uniswapPool) {
+    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!));
+  }
+
+  stakeWithdrawal.save();
+  pool.save();
 }
 
 export function handleReinvest(event: ReinvestEvent): void {
@@ -270,10 +309,10 @@ export function handleReinvest(event: ReinvestEvent): void {
   reinvest.pool = pool.id
   reinvest.timestamp = event.block.timestamp
 
-  pool.bufferTokenBalance = fetchBufferTokenBalance(event.address)
-  pool.stakedTokenBalance = fetchStakedTokenBalance(event.address)
+  pool.bufferTokenBalance = getPoolBufferTokenBalance(pool)
+  pool.stakedTokenBalance = getPoolStakedTokenBalance(pool)
   if (pool.uniswapPool) {
-    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool))
+    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!))
   }
 
   pool.save()
@@ -286,10 +325,10 @@ export function handleRewardsDurationUpdated(event: RewardsDurationUpdated): voi
     pool = new Pool(event.address.toHexString())
   }
 
-  pool.bufferTokenBalance = fetchBufferTokenBalance(event.address)
-  pool.stakedTokenBalance = fetchStakedTokenBalance(event.address)
+  pool.bufferTokenBalance = getPoolBufferTokenBalance(pool)
+  pool.stakedTokenBalance = getPoolStakedTokenBalance(pool)
   if (pool.uniswapPool) {
-    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool))
+    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!))
   }
   pool.save()
 }
@@ -300,10 +339,10 @@ export function handleTransfer(event: Transfer): void {
     pool = new Pool(event.address.toHexString())
   }
 
-  pool.bufferTokenBalance = fetchBufferTokenBalance(event.address)
-  pool.stakedTokenBalance = fetchStakedTokenBalance(event.address)
+  pool.bufferTokenBalance = getPoolBufferTokenBalance(pool)
+  pool.stakedTokenBalance = getPoolStakedTokenBalance(pool)
   if (pool.uniswapPool) {
-    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool))
+    pool.price = calculatePoolPriceWithDecimals(Address.fromString(pool.uniswapPool!))
   }
   pool.save()
 }

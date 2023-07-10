@@ -25,6 +25,14 @@ export class UniswapLibrary__calculatePoolMintedAmountsResult {
     map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
     return map;
   }
+
+  getAmount0Minted(): BigInt {
+    return this.value0;
+  }
+
+  getAmount1Minted(): BigInt {
+    return this.value1;
+  }
 }
 
 export class UniswapLibrary__getAmountsForLiquidityResult {
@@ -42,6 +50,14 @@ export class UniswapLibrary__getAmountsForLiquidityResult {
     map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
     return map;
   }
+
+  getAmount0(): BigInt {
+    return this.value0;
+  }
+
+  getAmount1(): BigInt {
+    return this.value1;
+  }
 }
 
 export class UniswapLibrary__getBufferTokenBalanceResult {
@@ -58,6 +74,14 @@ export class UniswapLibrary__getBufferTokenBalanceResult {
     map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
     map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
     return map;
+  }
+
+  getAmount0(): BigInt {
+    return this.value0;
+  }
+
+  getAmount1(): BigInt {
+    return this.value1;
   }
 }
 

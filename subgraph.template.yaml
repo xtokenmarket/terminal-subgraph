@@ -6,12 +6,12 @@ dataSources:
     name: Terminal
     network: {{network}}
     source:
-      address: '{{address}}'
+      address: "{{address}}"
       abi: Terminal
       startBlock: {{startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - Terminal
@@ -41,6 +41,8 @@ dataSources:
           handler: handleDeployedNonIncentivizedPool
         - event: InitiatedRewardsProgram(indexed address,address[],uint256[],uint256)
           handler: handleInitiatedRewardsProgram
+        - event: DeployedSingleAssetPool(indexed address,indexed address)
+          handler: handleDeployedSingleAssetPool
         # - event: TokenFeeWithdraw(indexed address,uint256)
         #   handler: handleTokenFeeWithdraw
         # - event: EthFeeWithdraw(uint256)
@@ -50,12 +52,12 @@ dataSources:
     name: RewardEscrow
     network: {{network}}
     source:
-      address: '{{rewardEscrowAddress}}'
+      address: "{{rewardEscrowAddress}}"
       abi: RewardEscrow
       startBlock: {{rewardEscrowStartBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - Vest
@@ -78,7 +80,7 @@ templates:
       abi: Pool
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       file: ./src/mappings/pool.ts
       entities:
@@ -92,6 +94,8 @@ templates:
           file: ./abis/CLR.json
         - name: UniswapLibrary
           file: ./abis/UniswapLibrary.json
+        - name: ERC20
+          file: ./abis/ERC20.json
       eventHandlers:
         - event: FeeCollected(uint256,uint256)
           handler: handleFeeCollected
@@ -124,7 +128,7 @@ templates:
       abi: UniswapV3Pool
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       file: ./src/mappings/uniswap.ts
       entities:

@@ -33,7 +33,7 @@ type Pool @entity {
   rewardsAreEscrowed: Boolean
   rewardDuration: BigInt
 
-  tokenId: BigInt    # Uniswap LP Position
+  tokenId: BigInt # Uniswap LP Position
   poolFee: Int
   tradeFee: BigInt
   uniswapPool: Uniswap
@@ -49,6 +49,7 @@ type Pool @entity {
   createdAt: BigInt
 
   isReward: Boolean
+  isSingleAssetPool: Boolean
 
   deposits: [Deposit!] @derivedFrom(field: "pool")
   withdrawals: [Withdrawal!] @derivedFrom(field: "pool")
@@ -88,6 +89,28 @@ type Withdrawal @entity {
   pool: Pool!
   amount0: BigInt!
   amount1: BigInt!
+
+  timestamp: BigInt!
+}
+
+type StakeDeposit @entity {
+  # Stake tx hash
+  id: ID!
+
+  user: User!
+  pool: Pool!
+  amount: BigInt!
+
+  timestamp: BigInt!
+}
+
+type StakeWithdrawal @entity {
+  # Withdraw tx hash
+  id: ID!
+
+  user: User!
+  pool: Pool!
+  amount: BigInt!
 
   timestamp: BigInt!
 }

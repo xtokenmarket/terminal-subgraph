@@ -278,29 +278,6 @@ export class RewardEscrow extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigIntArray());
   }
 
-  clrPoolVestingPeriod(param0: Address): BigInt {
-    let result = super.call(
-      "clrPoolVestingPeriod",
-      "clrPoolVestingPeriod(address):(uint256)",
-      [ethereum.Value.fromAddress(param0)]
-    );
-
-    return result[0].toBigInt();
-  }
-
-  try_clrPoolVestingPeriod(param0: Address): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "clrPoolVestingPeriod",
-      "clrPoolVestingPeriod(address):(uint256)",
-      [ethereum.Value.fromAddress(param0)]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
   getNextVestingEntry(
     pool: Address,
     token: Address,
@@ -651,6 +628,29 @@ export class RewardEscrow extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
+  rewardPoolVestingPeriod(param0: Address): BigInt {
+    let result = super.call(
+      "rewardPoolVestingPeriod",
+      "rewardPoolVestingPeriod(address):(uint256)",
+      [ethereum.Value.fromAddress(param0)]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_rewardPoolVestingPeriod(param0: Address): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "rewardPoolVestingPeriod",
+      "rewardPoolVestingPeriod(address):(uint256)",
+      [ethereum.Value.fromAddress(param0)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
   totalEscrowedAccountBalance(param0: Address, param1: Address): BigInt {
     let result = super.call(
       "totalEscrowedAccountBalance",
@@ -949,20 +949,20 @@ export class RenounceOwnershipCall__Outputs {
   }
 }
 
-export class SetCLRPoolVestingPeriodCall extends ethereum.Call {
-  get inputs(): SetCLRPoolVestingPeriodCall__Inputs {
-    return new SetCLRPoolVestingPeriodCall__Inputs(this);
+export class SetRewardPoolVestingPeriodCall extends ethereum.Call {
+  get inputs(): SetRewardPoolVestingPeriodCall__Inputs {
+    return new SetRewardPoolVestingPeriodCall__Inputs(this);
   }
 
-  get outputs(): SetCLRPoolVestingPeriodCall__Outputs {
-    return new SetCLRPoolVestingPeriodCall__Outputs(this);
+  get outputs(): SetRewardPoolVestingPeriodCall__Outputs {
+    return new SetRewardPoolVestingPeriodCall__Outputs(this);
   }
 }
 
-export class SetCLRPoolVestingPeriodCall__Inputs {
-  _call: SetCLRPoolVestingPeriodCall;
+export class SetRewardPoolVestingPeriodCall__Inputs {
+  _call: SetRewardPoolVestingPeriodCall;
 
-  constructor(call: SetCLRPoolVestingPeriodCall) {
+  constructor(call: SetRewardPoolVestingPeriodCall) {
     this._call = call;
   }
 
@@ -975,10 +975,10 @@ export class SetCLRPoolVestingPeriodCall__Inputs {
   }
 }
 
-export class SetCLRPoolVestingPeriodCall__Outputs {
-  _call: SetCLRPoolVestingPeriodCall;
+export class SetRewardPoolVestingPeriodCall__Outputs {
+  _call: SetRewardPoolVestingPeriodCall;
 
-  constructor(call: SetCLRPoolVestingPeriodCall) {
+  constructor(call: SetRewardPoolVestingPeriodCall) {
     this._call = call;
   }
 }

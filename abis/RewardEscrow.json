@@ -279,25 +279,6 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "clrPoolVestingPeriod",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
         "name": "pool",
         "type": "address"
       },
@@ -604,6 +585,25 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "rewardPoolVestingPeriod",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "pool",
         "type": "address"
       },
@@ -613,7 +613,7 @@
         "type": "uint256"
       }
     ],
-    "name": "setCLRPoolVestingPeriod",
+    "name": "setRewardPoolVestingPeriod",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

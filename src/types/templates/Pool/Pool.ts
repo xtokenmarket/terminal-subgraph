@@ -347,6 +347,14 @@ export class Pool__calculateAmountsMintedSingleTokenResult {
     map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
     return map;
   }
+
+  getAmount0Minted(): BigInt {
+    return this.value0;
+  }
+
+  getAmount1Minted(): BigInt {
+    return this.value1;
+  }
 }
 
 export class Pool__calculatePoolMintedAmountsResult {
@@ -363,6 +371,39 @@ export class Pool__calculatePoolMintedAmountsResult {
     map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
     map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
     return map;
+  }
+
+  getAmount0Minted(): BigInt {
+    return this.value0;
+  }
+
+  getAmount1Minted(): BigInt {
+    return this.value1;
+  }
+}
+
+export class Pool__calculateWithdrawAmountsResult {
+  value0: BigInt;
+  value1: BigInt;
+
+  constructor(value0: BigInt, value1: BigInt) {
+    this.value0 = value0;
+    this.value1 = value1;
+  }
+
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    return map;
+  }
+
+  getAmount0(): BigInt {
+    return this.value0;
+  }
+
+  getAmount1(): BigInt {
+    return this.value1;
   }
 }
 
@@ -381,6 +422,14 @@ export class Pool__collectResult {
     map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
     return map;
   }
+
+  getCollected0(): BigInt {
+    return this.value0;
+  }
+
+  getCollected1(): BigInt {
+    return this.value1;
+  }
 }
 
 export class Pool__getAmountsForLiquidityResult {
@@ -397,6 +446,14 @@ export class Pool__getAmountsForLiquidityResult {
     map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
     map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
     return map;
+  }
+
+  getAmount0(): BigInt {
+    return this.value0;
+  }
+
+  getAmount1(): BigInt {
+    return this.value1;
   }
 }
 
@@ -415,6 +472,14 @@ export class Pool__getBufferTokenBalanceResult {
     map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
     return map;
   }
+
+  getAmount0(): BigInt {
+    return this.value0;
+  }
+
+  getAmount1(): BigInt {
+    return this.value1;
+  }
 }
 
 export class Pool__getStakedTokenBalanceResult {
@@ -432,6 +497,14 @@ export class Pool__getStakedTokenBalanceResult {
     map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
     return map;
   }
+
+  getAmount0(): BigInt {
+    return this.value0;
+  }
+
+  getAmount1(): BigInt {
+    return this.value1;
+  }
 }
 
 export class Pool__getTicksResult {
@@ -448,6 +521,14 @@ export class Pool__getTicksResult {
     map.set("value0", ethereum.Value.fromI32(this.value0));
     map.set("value1", ethereum.Value.fromI32(this.value1));
     return map;
+  }
+
+  getTick0(): i32 {
+    return this.value0;
+  }
+
+  getTick1(): i32 {
+    return this.value1;
   }
 }
 
@@ -472,6 +553,22 @@ export class Pool__rewardInfoResult {
     map.set("value3", ethereum.Value.fromUnsignedBigInt(this.value3));
     return map;
   }
+
+  getRewardRate(): BigInt {
+    return this.value0;
+  }
+
+  getRewardPerTokenStored(): BigInt {
+    return this.value1;
+  }
+
+  getTotalRewardAmount(): BigInt {
+    return this.value2;
+  }
+
+  getRemainingRewardAmount(): BigInt {
+    return this.value3;
+  }
 }
 
 export class Pool__uniContractsResult {
@@ -491,6 +588,18 @@ export class Pool__uniContractsResult {
     map.set("value1", ethereum.Value.fromAddress(this.value1));
     map.set("value2", ethereum.Value.fromAddress(this.value2));
     return map;
+  }
+
+  getRouter(): Address {
+    return this.value0;
+  }
+
+  getQuoter(): Address {
+    return this.value1;
+  }
+
+  getPositionManager(): Address {
+    return this.value2;
   }
 }
 
@@ -674,6 +783,41 @@ export class Pool extends ethereum.SmartContract {
     let value = result.value;
     return ethereum.CallResult.fromValue(
       new Pool__calculatePoolMintedAmountsResult(
+        value[0].toBigInt(),
+        value[1].toBigInt()
+      )
+    );
+  }
+
+  calculateWithdrawAmounts(
+    stakedBalance: BigInt
+  ): Pool__calculateWithdrawAmountsResult {
+    let result = super.call(
+      "calculateWithdrawAmounts",
+      "calculateWithdrawAmounts(uint256):(uint256,uint256)",
+      [ethereum.Value.fromUnsignedBigInt(stakedBalance)]
+    );
+
+    return new Pool__calculateWithdrawAmountsResult(
+      result[0].toBigInt(),
+      result[1].toBigInt()
+    );
+  }
+
+  try_calculateWithdrawAmounts(
+    stakedBalance: BigInt
+  ): ethereum.CallResult<Pool__calculateWithdrawAmountsResult> {
+    let result = super.tryCall(
+      "calculateWithdrawAmounts",
+      "calculateWithdrawAmounts(uint256):(uint256,uint256)",
+      [ethereum.Value.fromUnsignedBigInt(stakedBalance)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new Pool__calculateWithdrawAmountsResult(
         value[0].toBigInt(),
         value[1].toBigInt()
       )
@@ -1051,6 +1195,21 @@ export class Pool extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(
       new Pool__getTicksResult(value[0].toI32(), value[1].toI32())
     );
+  }
+
+  getVersion(): string {
+    let result = super.call("getVersion", "getVersion():(string)", []);
+
+    return result[0].toString();
+  }
+
+  try_getVersion(): ethereum.CallResult<string> {
+    let result = super.tryCall("getVersion", "getVersion():(string)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toString());
   }
 
   increaseAllowance(spender: Address, addedValue: BigInt): boolean {
@@ -2015,11 +2174,11 @@ export class DepositCall__Inputs {
     this._call = call;
   }
 
-  get inputAsset(): i32 {
-    return this._call.inputValues[0].value.toI32();
+  get amount0(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
   }
 
-  get amount(): BigInt {
+  get amount1(): BigInt {
     return this._call.inputValues[1].value.toBigInt();
   }
 }
@@ -2128,11 +2287,15 @@ export class InitializeCall__Inputs {
   }
 
   get contracts(): InitializeCallContractsStruct {
-    return this._call.inputValues[10].value.toTuple() as InitializeCallContractsStruct;
+    return changetype<InitializeCallContractsStruct>(
+      this._call.inputValues[10].value.toTuple()
+    );
   }
 
   get stakingParams(): InitializeCallStakingParamsStruct {
-    return this._call.inputValues[11].value.toTuple() as InitializeCallStakingParamsStruct;
+    return changetype<InitializeCallStakingParamsStruct>(
+      this._call.inputValues[11].value.toTuple()
+    );
   }
 }
 
@@ -2516,6 +2679,14 @@ export class WithdrawCall__Inputs {
   get amount(): BigInt {
     return this._call.inputValues[0].value.toBigInt();
   }
+
+  get minReceivedAmount0(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
+  }
+
+  get minReceivedAmount1(): BigInt {
+    return this._call.inputValues[2].value.toBigInt();
+  }
 }
 
 export class WithdrawCall__Outputs {
@@ -2545,6 +2716,14 @@ export class WithdrawAndClaimRewardCall__Inputs {
 
   get amount(): BigInt {
     return this._call.inputValues[0].value.toBigInt();
+  }
+
+  get minReceivedAmount0(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
+  }
+
+  get minReceivedAmount1(): BigInt {
+    return this._call.inputValues[2].value.toBigInt();
   }
 }
 
