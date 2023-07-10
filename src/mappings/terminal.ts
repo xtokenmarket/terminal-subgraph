@@ -151,6 +151,7 @@ export function handleDeployedIncentivizedPool(event: DeployedIncentivizedPool):
   }
   pool.createdAt = event.block.timestamp;
   pool.isReward = true;
+  pool.isSingleAssetPool = false;
 
   UniswapV3Pool.create(uniswapPoolAddress);
   PoolTemplate.create(poolAddress);
